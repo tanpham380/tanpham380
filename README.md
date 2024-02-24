@@ -28,12 +28,18 @@
 
 <h3 align="left">Languages and Tools:</h3>
 <p 
-   align="left"> <a href="https://git-scm.com/" target="_blank" rel="noreferrer"> <img
+   align="left"> 
+   <a href="https://git-scm.com/" target="_blank" rel="noreferrer"> <img
    src="./src/git-scm-icon.svg" alt="Git" width="40" height="40" /> </a> 
    <a
       href="https://www.microsoft.com/en-us/sql-server" target="_blank" rel="noreferrer"> <img
       src="./src/microsoft-sql-server-logo.svg" alt="Mssql" width="40"
-      height="40" /> </a> <a href="https://kubernetes.io/" target="_blank" rel="noreferrer"> <img
+      height="40" /> </a> 
+         <a
+      href="https://www.vmware.com/" target="_blank" rel="noreferrer"> <img
+      src="./src/vmware-logo.png" alt="VMware" width="40"
+      height="40" /> </a> 
+      <a href="https://kubernetes.io/" target="_blank" rel="noreferrer"> <img
       src="./src/kubernetes-icon.svg" alt="Kubernetes" width="40" height="40" /> 
    </a>
    <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
