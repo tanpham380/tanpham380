@@ -4,7 +4,10 @@
 <img align="right" alt="Coding" width="400" src="./scr/me_1.gif">
 
 <p align="left"> <img src="https://komarev.com/ghpvc/?username=tanpham380&color=orange" alt="thanhtan2136&style=flat" /> </p>
+
+
 [![](./src/header_.png)](#)
+
 - 🔭 I graduated from **FPT University**
 - 🌱 I’m currently learning **Docker and Kubernetes to build a private cloud infrastructure (Cloud Private System)**
 - 💬 Ask me about **Simple ML and DL**
