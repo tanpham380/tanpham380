@@ -70,8 +70,8 @@
         Contribution Streak
       </td>
       <td>
-        <a href="https://github.com/vaibhavvikas#gh-dark-mode-only">
-          <img src="https://raw.githubusercontent.com/vaibhavvikas/vaibhavvikas/output/github-contribution-grid-snake-dark.svg#gh-dark-mode-only" alt="My GitHub contribution grid (dark mode only)">
+        <a href="https://github.com/marketplace/actions/generate-snake-game-from-github-contribution-grid">
+          <img src="https://raw.githubusercontent.com/platane/snk/output/github-contribution-grid-snake.svg" alt="My GitHub contribution grid (dark mode only)">
         </a>
         <br>
         Contribution Grid (Dark Mode)
