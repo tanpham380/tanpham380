@@ -80,17 +80,3 @@
   </table>
 </center>
 
-<style>
-  img {
-    max-width: 300px; /* Adjust width as needed */
-  }
-</style>
-
-
-
-<style>
-  img {
-    max-width: 500px; /* Adjust width as needed */
-    margin: 10px auto; /* Add margin and center alignment */
-  }
-</style>
