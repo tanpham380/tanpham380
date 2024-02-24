@@ -49,26 +49,44 @@
    </a> 
 </p>
 
-<p align="center">
-  <img src="https://github-readme-stats.vercel.app/api/top-langs?username=tanpham380&show_icons=true&locale=en&layout=compact" alt="Top programming languages used by tanpham380" />
-</p>
-<p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=tanpham380&show_icons=true&locale=en" alt="tanpham380's GitHub stats" />
-</p>
-<p align="center">
-  <img src="https://github-readme-streak-stats.herokuapp.com/?user=tanpham380&" alt="tanpham380's GitHub contribution streak" />
-</p>
-<p align="center">
-  <a href="https://github.com/vaibhavvikas#gh-dark-mode-only">
-    <img src="https://raw.githubusercontent.com/vaibhavvikas/vaibhavvikas/output/github-contribution-grid-snake-dark.svg#gh-dark-mode-only" alt="My GitHub contribution grid (dark mode only)" />
-  </a>
-</p>
+<center>
+  <table border="0" cellpadding="10">
+    <tr>
+      <td>
+        <img src="https://github-readme-stats.vercel.app/api/top-langs?username=tanpham380&show_icons=true&locale=en&layout=compact" alt="Top programming languages used by tanpham380">
+        <br>
+        Top Programming Languages
+      </td>
+      <td>
+        <img src="https://github-readme-stats.vercel.app/api?username=tanpham380&show_icons=true&locale=en" alt="tanpham380's GitHub stats">
+        <br>
+        GitHub Stats
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <img src="https://github-readme-streak-stats.herokuapp.com/?user=tanpham380&" alt="tanpham380's GitHub contribution streak">
+        <br>
+        Contribution Streak
+      </td>
+      <td>
+        <a href="https://github.com/vaibhavvikas#gh-dark-mode-only">
+          <img src="https://raw.githubusercontent.com/vaibhavvikas/vaibhavvikas/output/github-contribution-grid-snake-dark.svg#gh-dark-mode-only" alt="My GitHub contribution grid (dark mode only)">
+        </a>
+        <br>
+        Contribution Grid (Dark Mode)
+      </td>
+    </tr>
+  </table>
+</center>
 
-<h2>My GitHub Stats</h2>
+<style>
+  img {
+    max-width: 300px; /* Adjust width as needed */
+  }
+</style>
 
-<p align="center">
-  These badges showcase my most used programming languages, overall GitHub activity, and contribution streak.
-</p>
+
 
 <style>
   img {
