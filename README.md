@@ -1,7 +1,7 @@
 
 <h1 align="center">Hi 👋, I'm Phạm Thanh Tân</h1>
 <h3 align="center">DevOps Engineer Intern from VietNam</h3>
-<img align="right" alt="Coding" width="400" src="./scr/me_1.gif">
+<img align="right" alt="Coding" width="400" src="./src/me_1.gif">
 
 <p align="left"> <img src="https://komarev.com/ghpvc/?username=tanpham380&color=orange" alt="thanhtan2136&style=flat" /> </p>
 
@@ -20,31 +20,31 @@
 
 <h3 align="left">Connect with me:</h3>
 <p align="left">
-<a href="https://www.linkedin.com/in/ph%E1%BA%A1m-thanh-t%C3%A2n-b355a3254/" target="blank"><img align="center" src="./scr/linked-in-alt.svg" alt="Thanh Tan height"30" width="40" /></a>
-<a href="https://www.facebook.com/phanthanhtanlopp92" target="blank"><img align="center" src="./scr/facebook.svg" alt="Thanh Tan height"30" width="40" /></a>
-<a href="https://www.instagram.com/phanthanhtanlopp92/" target="blank"><img align="center" src="./scr/instagram.svg" alt="Thanh Tan height"30" width="40" /></a>
+<a href="https://www.linkedin.com/in/ph%E1%BA%A1m-thanh-t%C3%A2n-b355a3254/" target="blank"><img align="center" src="./src/linked-in-alt.svg" alt="Thanh Tan height"height ="30" width="40" /></a>
+<a href="https://www.facebook.com/ChuChimChuych/" target="blank"><img align="center" src="./src/facebook.png" alt="Thanh Tan" height = "30" width="40" /></a>
+<a href="https://www.instagram.com/chusoicon.c/" target="blank"><img align="center" src="./src/instagram.png" alt="Thanh Tan" height="30" width="40" /></a>
 </p>
 
 <h3 align="left">Languages and Tools:</h3>
 <p 
    align="left"> <a href="https://git-scm.com/" target="_blank" rel="noreferrer"> <img
-   src="./scr/git-scm-icon.svg" alt="Git" width="40" height="40" /> </a> 
+   src="./src/git-scm-icon.svg" alt="Git" width="40" height="40" /> </a> 
    <a
       href="https://www.microsoft.com/en-us/sql-server" target="_blank" rel="noreferrer"> <img
-      src="h./scr/microsoft-sql-server-logo.svg" alt="Mssql" width="40"
+      src="h./src/microsoft-sql-server-logo.svg" alt="Mssql" width="40"
       height="40" /> </a> <a href="https://kubernetes.io/" target="_blank" rel="noreferrer"> <img
-      src="./scr/kubernetes-icon.svg" alt="Kubernetes" width="40" height="40" /> 
+      src="./src/kubernetes-icon.svg" alt="Kubernetes" width="40" height="40" /> 
    </a>
    <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
-   <img src="./scr/docker-official.svg" alt="Docker" width="40" height="40" />
+   <img src="./src/docker-official.svg" alt="Docker" width="40" height="40" />
    </a> 
    <a href="https://www.linux.org/" target="_blank" rel="noreferrer"> <img
-      src="./scr/linux-tux.svg" alt="Linux" width="40" height="40" /> </a>
+      src="./src/linux-tux.svg" alt="Linux" width="40" height="40" /> </a>
    <a href="https://www.python.org" target="_blank"rel="noreferrer"> <img
-      src="./scr/python-original.svg"
+      src="./src/python-original.svg"
       alt="Python" width="40" height="40" /> </a> 
    <a href="https://flutter.dev/" target="_blank" rel="noreferrer">
-   <img src="./scr/flutter_logo.svg" alt="Flutter" width="40" height="40" />
+   <img src="./src/flutter_logo.svg" alt="Flutter" width="40" height="40" />
    </a> 
 </p>
 
