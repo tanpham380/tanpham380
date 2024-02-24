@@ -32,7 +32,7 @@
    src="./src/git-scm-icon.svg" alt="Git" width="40" height="40" /> </a> 
    <a
       href="https://www.microsoft.com/en-us/sql-server" target="_blank" rel="noreferrer"> <img
-      src="h./src/microsoft-sql-server-logo.svg" alt="Mssql" width="40"
+      src="./src/microsoft-sql-server-logo.svg" alt="Mssql" width="40"
       height="40" /> </a> <a href="https://kubernetes.io/" target="_blank" rel="noreferrer"> <img
       src="./src/kubernetes-icon.svg" alt="Kubernetes" width="40" height="40" /> 
    </a>
@@ -54,4 +54,8 @@
 <p>&nbsp;<img align="center" src="https://github-readme-stats.vercel.app/api?username=tanpham380&show_icons=true&locale=en" alt="tanpham380" /></p>
 
 <p><img align="center" src="https://github-readme-streak-stats.herokuapp.com/?user=tanpham380&" alt="tanpham380" /></p>
-<a href="https://github.com/vaibhavvikas#gh-dark-mode-only"><img src="https://raw.githubusercontent.com/vaibhavvikas/vaibhavvikas/output/github-contribution-grid-snake-dark.svg#gh-dark-mode-only" alt="My GitHub Stats"/></a>
+
+
+<p><a href="https://github.com/vaibhavvikas#gh-dark-mode-only"><img src="https://raw.githubusercontent.com/vaibhavvikas/vaibhavvikas/output/github-contribution-grid-snake-dark.svg#gh-dark-mode-only" alt="My GitHub Stats"/></a></p>
+
+<p><img align="center" src="https://github-readme-stats.vercel.app/api/top-langs?username=tanpham380&show_icons=true&locale=en&layout=compact" alt="tanpham380" /></p>
