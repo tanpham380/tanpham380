@@ -49,3 +49,30 @@
    </a> 
 </p>
 
+<p align="center">
+  <img src="https://github-readme-stats.vercel.app/api/top-langs?username=tanpham380&show_icons=true&locale=en&layout=compact" alt="Top programming languages used by tanpham380" />
+</p>
+<p align="center">
+  <img src="https://github-readme-stats.vercel.app/api?username=tanpham380&show_icons=true&locale=en" alt="tanpham380's GitHub stats" />
+</p>
+<p align="center">
+  <img src="https://github-readme-streak-stats.herokuapp.com/?user=tanpham380&" alt="tanpham380's GitHub contribution streak" />
+</p>
+<p align="center">
+  <a href="https://github.com/vaibhavvikas#gh-dark-mode-only">
+    <img src="https://raw.githubusercontent.com/vaibhavvikas/vaibhavvikas/output/github-contribution-grid-snake-dark.svg#gh-dark-mode-only" alt="My GitHub contribution grid (dark mode only)" />
+  </a>
+</p>
+
+<h2>My GitHub Stats</h2>
+
+<p align="center">
+  These badges showcase my most used programming languages, overall GitHub activity, and contribution streak.
+</p>
+
+<style>
+  img {
+    max-width: 500px; /* Adjust width as needed */
+    margin: 10px auto; /* Add margin and center alignment */
+  }
+</style>
