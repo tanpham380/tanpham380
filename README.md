@@ -14,7 +14,7 @@
 - 📄 Know about my experiences: Under 2 year
 - ⚡ Fun fact **Hardwork**
 <img align="right" alt="Coding" width="400" src="./src/me_1.gif">
-<b>I'm a Software Developer who is a highly motivated person with strong technical, problem-solving with excellent time management, leadership, and team skills who is likely to create an impact on the organization/work, I'm a part of and always loves to socialize and experience new things in life. I have a great experience in Python, Flask, Angular, Node, Microservices and Backend Technologies including Machine Learning. Want to discuss something?</b>
+<b>I'm a DevOps Engineer who is a highly motivated person with strong technical, problem-solving with excellent time management, leadership, and team skills who is likely to create an impact on the organization/work, I'm a part of and always loves to socialize and experience new things in life. I have a great experience in Python, Django, Flutter, VM EXSI, Microservices and Backend Technologies including Cloud Services.</b>
 
 
 <!-- <! You can reach out to me on discord at <b>Dwanzil#8489</b>. >. -->
