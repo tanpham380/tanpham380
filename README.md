@@ -25,7 +25,7 @@
 <a href="https://www.facebook.com/ChuChimChuych/" target="blank"><img align="center" src="./src/facebook.png" alt="Thanh Tan" height = "30" width="40" /></a>
 <a href="https://www.instagram.com/chusoicon.c/" target="blank"><img align="center" src="./src/instagram.png" alt="Thanh Tan" height="30" width="40" /></a>
 </p>
-
+<p><a href="https://github.com/vaibhavvikas#gh-dark-mode-only"><img src="https://raw.githubusercontent.com/vaibhavvikas/vaibhavvikas/output/github-contribution-grid-snake-dark.svg#gh-dark-mode-only" alt="My GitHub Stats"/></a></p>
 <h3 align="left">Languages and Tools:</h3>
 <p 
    align="left"> <a href="https://git-scm.com/" target="_blank" rel="noreferrer"> <img
@@ -50,12 +50,6 @@
 </p>
 
 <p><img align="left" src="https://github-readme-stats.vercel.app/api/top-langs?username=tanpham380&show_icons=true&locale=en&layout=compact" alt="tanpham380" /></p>
-
 <p>&nbsp;<img align="center" src="https://github-readme-stats.vercel.app/api?username=tanpham380&show_icons=true&locale=en" alt="tanpham380" /></p>
-
 <p><img align="center" src="https://github-readme-streak-stats.herokuapp.com/?user=tanpham380&" alt="tanpham380" /></p>
-
-
-<p><a href="https://github.com/vaibhavvikas#gh-dark-mode-only"><img src="https://raw.githubusercontent.com/vaibhavvikas/vaibhavvikas/output/github-contribution-grid-snake-dark.svg#gh-dark-mode-only" alt="My GitHub Stats"/></a></p>
-
 <p><img align="center" src="https://github-readme-stats.vercel.app/api/top-langs?username=tanpham380&show_icons=true&locale=en&layout=compact" alt="tanpham380" /></p>
