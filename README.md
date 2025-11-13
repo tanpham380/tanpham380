@@ -5,6 +5,18 @@
   <img src="https://komarev.com/ghpvc/?username=tanpham380&color=orange" alt="Profile views" />
 </p>
 
+### Resume / CV
+<p align="left">
+  <a href="./cv/PhamThanhTan-ENG.pdf" title="Download CV (English)">
+    <img src="https://img.shields.io/badge/CV-English-blue?style=for-the-badge&logo=adobe&logoColor=white" alt="Download CV English" />
+  </a>
+  &nbsp;
+  <a href="./cv/PhamThanhTan-VIE.pdf" title="Tải CV (Tiếng Việt)">
+    <img src="https://img.shields.io/badge/CV-Ti%E1%BA%BFng_Vi%E1%BB%87t-red?style=for-the-badge&logo=adobe&logoColor=white" alt="Download CV Vietnamese" />
+  </a>
+</p>
+
+
 [![](./src/header_.png)](#)
 
 **About Me**  
@@ -68,9 +80,20 @@ I’m a DevOps Engineer with a passion for automation, scalability, and problem-
 
 ### GitHub Stats
 <p align="left">
-  <img src="https://github-readme-stats.vercel.app/api?username=tanpham380&show_icons=true&theme=radical" alt="GitHub Stats" /><br>
-  <img src="https://github-readme-streak-stats.herokuapp.com/?user=tanpham380&theme=radical" alt="GitHub Contribution Streak" /><br>
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=tanpham380&layout=compact&theme=radical" alt="Top Languages Used" />
+  <!-- Stats card (shows commits, PRs, issues, stars) -->
+  <a href="https://github.com/tanpham380?tab=repositories">
+    <img height="160" src="https://github-readme-stats.vercel.app/api?username=tanpham380&show_icons=true&theme=radical&hide_border=true" alt="GitHub Stats" />
+  </a>
+  &nbsp;
+  <!-- Streak card -->
+  <a href="https://streak-stats.demolab.com/?user=tanpham380" target="_blank">
+    <img height="160" src="https://streak-stats.demolab.com/?user=tanpham380&theme=radical&hide_border=true" alt="GitHub Contribution Streak" />
+  </a>
+  &nbsp;
+  <!-- Top languages card (compact layout) -->
+  <a href="https://github.com/tanpham380?tab=repositories">
+    <img height="160" src="https://github-readme-stats.vercel.app/api/top-langs/?username=tanpham380&layout=compact&langs_count=8&card_width=320&theme=radical&hide_border=true" alt="Top Languages Used" />
+  </a>
 </p>
 
 ---
