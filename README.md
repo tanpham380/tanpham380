@@ -78,7 +78,7 @@ I’m a DevOps Engineer with a passion for automation, scalability, and problem-
 ### Fun Visuals
 <p align="center">
   <a href="https://github.com/marketplace/actions/generate-snake-game-from-github-contribution-grid">
-    <img src="https://raw.githubusercontent.com/platane/snk/output/github-contribution-grid-snake.svg" alt="GitHub Contribution Grid Snake" />
+    <img src="https://raw.githubusercontent.com/tanpham380/tanpham380/output/github-contribution-grid-snake.svg" alt="GitHub Contribution Grid Snake" />
   </a>
 </p>
 
