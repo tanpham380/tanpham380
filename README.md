@@ -1,5 +1,5 @@
 <h1 align="center">Hi 👋, I'm Phạm Thanh Tân</h1>
-<h3 align="center">DevOps Engineer Intern from Vietnam</h3>
+<h3 align="center">DevOps Engineer Intern specializing in Kubernetes, Python, and Cloud Infrastructures from Vietnam</h3>
 
 <p align="left">
   <img src="https://komarev.com/ghpvc/?username=tanpham380&color=orange" alt="Profile views" />
@@ -11,8 +11,8 @@
     <img src="https://img.shields.io/badge/CV-English-blue?style=for-the-badge&logo=adobe&logoColor=white" alt="Download CV English" />
   </a>
   &nbsp;
-  <a href="./cv/PhamThanhTan-VIE.pdf" title="Tải CV (Tiếng Việt)">
-    <img src="https://img.shields.io/badge/CV-Ti%E1%BA%BFng_Vi%E1%BB%87t-red?style=for-the-badge&logo=adobe&logoColor=white" alt="Download CV Vietnamese" />
+  <a href="./cv/PhamThanhTan-VIE.pdf" title="Download CV (Vietnamese)">
+    <img src="https://img.shields.io/badge/CV-Vietnamese-red?style=for-the-badge&logo=adobe&logoColor=white" alt="Download CV Vietnamese" />
   </a>
 </p>
 
@@ -43,6 +43,9 @@ I’m a DevOps Engineer with a passion for automation, scalability, and problem-
   </a>
   <a href="https://www.instagram.com/chusoicon.c/" target="_blank">
     <img align="center" src="./src/instagram.png" alt="Instagram" height="40" width="40" />
+  </a>
+  <a href="mailto:Phamthanhtanlop92@gmail.com" target="_blank">
+    <img align="center" src="https://img.shields.io/badge/Gmail-D14836?style=flat&logo=gmail&logoColor=white" alt="Email" height="30" width="70" />
   </a>
 </p>
 
@@ -78,7 +81,13 @@ I’m a DevOps Engineer with a passion for automation, scalability, and problem-
 
 ---
 
-### GitHub Stats
+### Projects
+<p align="left">
+  - [**Software Defined Networking Demo on K8s**](./software-defined-networking/) - Capstone project demonstrating network policies, high availability configurations, and automation scripts in Kubernetes environments.
+  - [Explore more on my GitHub](https://github.com/tanpham380?tab=repositories) - Additional projects and repositories.
+</p>
+
+---
 <p align="left">
   <!-- Stats card (shows commits, PRs, issues, stars) -->
   <a href="https://github.com/tanpham380?tab=repositories">
@@ -104,6 +113,10 @@ I’m a DevOps Engineer with a passion for automation, scalability, and problem-
     <img src="https://raw.githubusercontent.com/tanpham380/tanpham380/output/github-contribution-grid-snake.svg" alt="GitHub Contribution Grid Snake" />
   </a>
 </p>
+<p align="center">
+  <img src="https://img.shields.io/github/followers/tanpham380?style=social" alt="GitHub Followers" />
+  <img src="https://img.shields.io/github/stars/tanpham380/tanpham380?style=social" alt="GitHub Stars" />
+</p>
 
 ---
 
@@ -121,12 +134,12 @@ Software Defined Networking (SDN) is a network architecture approach that separa
 - **Artifacts**: Includes flowcharts, reports, slides, and demo videos.
 
 ### Project Structure
-- `SDN/configure/` - Configuration files (Keepalived, HA, DNS, YAML samples).
-- `SDN/DevCode/` - Source code and scripts (Python, NetworkPolicy examples).
-- `SDN/test/` - Testing scripts.
-- `SDN/Flowchart/`, `SDN/Image/`, `SDN/Report/`, `SDN/Slide/`, `SDN/video/` - Project documentation and demos.
+- `software-defined-networking/configure/` - Configuration files (keepalived, HA, DNS, YAML samples).
+- `software-defined-networking/code/` - Source code and scripts (Python, NetworkPolicy examples).
+- `software-defined-networking/test/` - Testing scripts.
+- `software-defined-networking/flowcharts/`, `software-defined-networking/images/`, `software-defined-networking/reports/`, `software-defined-networking/slides/`, `software-defined-networking/videos/` - Project documentation and demos.
 
-For detailed setup, examples, and instructions, see [`SDN/README.md`](./SDN/README.md). For the official project report, see [CP_Report_ver5.pdf](./SDN/Report/CP_Report_ver5.pdf).
+For detailed setup, examples, and instructions, see [`software-defined-networking/README.md`](./software-defined-networking/README.md). For the official project report, see [cp-report-v5.pdf](./software-defined-networking/reports/cp-report-v5.pdf).
 
 
 
