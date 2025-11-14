@@ -1,0 +1,45 @@
+
+ena
+config t
+cấu hình ssh:
+ip domain-name demo
+crypto key generate rsa modulus 2048
+ip ssh version 2
+line vty 0 4
+transport input ssh
+login local
+username ssh privilege 15 secret switch
+cấu hình password cho enable:
+config t
+enable password switch
+cấu hình sw1 làm VTP server ( tự động cấu hình vlan cho tất cả sw)
+sw2 3 4 =>> VTP client với domain: demo
+cấu hình domain name : demo
+cấu hình ssh cho switch
+cấu hình openflow cho cissco : https://www.cisco.com/c/en/us/td/docs/switches/datacenter/nexus6000/sw/system_management/7x/b_6k_System_Mgmt_Config_7x/configuring_openflow.pdf
+https://www.cisco.com/c/en/us/td/docs/switches/lan/catalyst2960xr/software/15_2_7_e/configuration_guide/b_1527e_consolidated_2960xr_cg/openflow.pdf
+yêu cầu hoạt động ở lớp layder 2: 10.1.10.2:6653    OpenFlow
+username ssh(user) privilege 15 secret switch(pass)
+ip sw1 :ip address 10.1.10.254 255.255.254.0
+ip sw2 :ip address 10.1.10.253 255.255.254.0
+ip sw3 :ip address 10.1.10.252 255.255.254.0
+ip sw4 :ip address 10.1.10.251 255.255.254.0
+
+cấu hình swith port mode trunk cho các cổng kết nối sw với sw
+sw access vlan cho các sw theo thông tin sau:
+sw 3 với 4 cùng vlan 20
+sw 1 vlan 30 
+tất cả ping về defaultgateway 10.1.xx.1, 8.8.8.8 và phân giải được tên miền google.com
+
+riêng sw 1 và 2 cấu hình trunk về pfsense ở cổng 7/3 
+thông tin pfsense:
+ip 192.168.50.54/23
+user: admin
+pass: Pfsense
+port 1 và 2 là port group với port 1 là master (LAGGs)
+các sub int 0.10 0.20 0.30 là các vlan 10 vlan 20 vlan 30
+đã cấu hình dhcp server cho các vlan vì vậy khi cấu hình thành công các client sẽ tự có ip theo access vlan
+
+
+
+

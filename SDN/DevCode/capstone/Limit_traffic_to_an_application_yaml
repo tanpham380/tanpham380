@@ -1,0 +1,11 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: 'deny-from-other-namespace to namespace: namespace'
+  namespace: tools
+spec:
+  ingress:
+  - from:
+    - podSelector: {}
+  podSelector:
+    matchLabels: {}

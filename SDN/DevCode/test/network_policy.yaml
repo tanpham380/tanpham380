@@ -1,0 +1,396 @@
+!!python/object:kubernetes.client.models.v1_network_policy.V1NetworkPolicy
+_api_version: networking.k8s.io/v1
+_kind: NetworkPolicy
+_metadata: !!python/object:kubernetes.client.models.v1_object_meta.V1ObjectMeta
+  _annotations:
+    kubectl.kubernetes.io/last-applied-configuration: '{"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"deny-appa-to-appb","namespace":"tools"},"spec":{"ingress":[{"from":[{"podSelector":{"matchExpressions":[{"key":"app","operator":"NotIn","values":["AppA"]}]}}]}],"podSelector":{"matchLabels":{"app":"AppB"}},"policyTypes":["Ingress"]}}
+
+      '
+  _creation_timestamp: 2023-10-31 08:33:38+00:00
+  _deletion_grace_period_seconds: null
+  _deletion_timestamp: null
+  _finalizers: null
+  _generate_name: null
+  _generation: 1
+  _labels: null
+  _managed_fields:
+  - !!python/object:kubernetes.client.models.v1_managed_fields_entry.V1ManagedFieldsEntry
+    _api_version: networking.k8s.io/v1
+    _fields_type: FieldsV1
+    _fields_v1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:kubectl.kubernetes.io/last-applied-configuration: {}
+      f:spec:
+        f:ingress: {}
+        f:podSelector: {}
+        f:policyTypes: {}
+    _manager: kubectl-client-side-apply
+    _operation: Update
+    _subresource: null
+    _time: 2023-10-31 08:33:38+00:00
+    discriminator: null
+    local_vars_configuration: !!python/object:kubernetes.client.configuration.Configuration
+      _Configuration__debug: false
+      _Configuration__logger_file: null
+      _Configuration__logger_format: '%(asctime)s %(levelname)s %(message)s'
+      api_key: {}
+      api_key_prefix: {}
+      assert_hostname: null
+      cert_file: null
+      client_side_validation: true
+      connection_pool_maxsize: 40
+      discard_unknown_keys: false
+      host: http://localhost
+      key_file: null
+      logger:
+        package_logger: &id001 !!python/object/apply:logging.getLogger
+        - client
+        urllib3_logger: &id002 !!python/object/apply:logging.getLogger
+        - urllib3
+      logger_file_handler: null
+      logger_formatter: !!python/object:logging.Formatter
+        _fmt: '%(asctime)s %(levelname)s %(message)s'
+        _style: !!python/object:logging.PercentStyle
+          _defaults: null
+          _fmt: '%(asctime)s %(levelname)s %(message)s'
+        datefmt: null
+      logger_stream_handler: null
+      no_proxy: null
+      password: null
+      proxy: null
+      proxy_headers: null
+      refresh_api_key_hook: null
+      retries: null
+      safe_chars_for_path_param: ''
+      ssl_ca_cert: null
+      temp_folder_path: null
+      tls_server_name: null
+      username: null
+      verify_ssl: true
+  _name: deny-appa-to-appb
+  _namespace: tools
+  _owner_references: null
+  _resource_version: '11468110'
+  _self_link: null
+  _uid: af39be0c-5f8c-4438-9afe-99a37a8e9d2c
+  discriminator: null
+  local_vars_configuration: !!python/object:kubernetes.client.configuration.Configuration
+    _Configuration__debug: false
+    _Configuration__logger_file: null
+    _Configuration__logger_format: '%(asctime)s %(levelname)s %(message)s'
+    api_key: {}
+    api_key_prefix: {}
+    assert_hostname: null
+    cert_file: null
+    client_side_validation: true
+    connection_pool_maxsize: 40
+    discard_unknown_keys: false
+    host: http://localhost
+    key_file: null
+    logger:
+      package_logger: *id001
+      urllib3_logger: *id002
+    logger_file_handler: null
+    logger_formatter: !!python/object:logging.Formatter
+      _fmt: '%(asctime)s %(levelname)s %(message)s'
+      _style: !!python/object:logging.PercentStyle
+        _defaults: null
+        _fmt: '%(asctime)s %(levelname)s %(message)s'
+      datefmt: null
+    logger_stream_handler: null
+    no_proxy: null
+    password: null
+    proxy: null
+    proxy_headers: null
+    refresh_api_key_hook: null
+    retries: null
+    safe_chars_for_path_param: ''
+    ssl_ca_cert: null
+    temp_folder_path: null
+    tls_server_name: null
+    username: null
+    verify_ssl: true
+_spec: !!python/object:kubernetes.client.models.v1_network_policy_spec.V1NetworkPolicySpec
+  _egress: null
+  _ingress:
+  - !!python/object:kubernetes.client.models.v1_network_policy_ingress_rule.V1NetworkPolicyIngressRule
+    _V1NetworkPolicyIngressRule__from:
+    - !!python/object:kubernetes.client.models.v1_network_policy_peer.V1NetworkPolicyPeer
+      _ip_block: null
+      _namespace_selector: null
+      _pod_selector: !!python/object:kubernetes.client.models.v1_label_selector.V1LabelSelector
+        _match_expressions:
+        - !!python/object:kubernetes.client.models.v1_label_selector_requirement.V1LabelSelectorRequirement
+          _key: app
+          _operator: NotIn
+          _values:
+          - AppA
+          discriminator: null
+          local_vars_configuration: !!python/object:kubernetes.client.configuration.Configuration
+            _Configuration__debug: false
+            _Configuration__logger_file: null
+            _Configuration__logger_format: '%(asctime)s %(levelname)s %(message)s'
+            api_key: {}
+            api_key_prefix: {}
+            assert_hostname: null
+            cert_file: null
+            client_side_validation: true
+            connection_pool_maxsize: 40
+            discard_unknown_keys: false
+            host: http://localhost
+            key_file: null
+            logger:
+              package_logger: *id001
+              urllib3_logger: *id002
+            logger_file_handler: null
+            logger_formatter: !!python/object:logging.Formatter
+              _fmt: '%(asctime)s %(levelname)s %(message)s'
+              _style: !!python/object:logging.PercentStyle
+                _defaults: null
+                _fmt: '%(asctime)s %(levelname)s %(message)s'
+              datefmt: null
+            logger_stream_handler: null
+            no_proxy: null
+            password: null
+            proxy: null
+            proxy_headers: null
+            refresh_api_key_hook: null
+            retries: null
+            safe_chars_for_path_param: ''
+            ssl_ca_cert: null
+            temp_folder_path: null
+            tls_server_name: null
+            username: null
+            verify_ssl: true
+        _match_labels: null
+        discriminator: null
+        local_vars_configuration: !!python/object:kubernetes.client.configuration.Configuration
+          _Configuration__debug: false
+          _Configuration__logger_file: null
+          _Configuration__logger_format: '%(asctime)s %(levelname)s %(message)s'
+          api_key: {}
+          api_key_prefix: {}
+          assert_hostname: null
+          cert_file: null
+          client_side_validation: true
+          connection_pool_maxsize: 40
+          discard_unknown_keys: false
+          host: http://localhost
+          key_file: null
+          logger:
+            package_logger: *id001
+            urllib3_logger: *id002
+          logger_file_handler: null
+          logger_formatter: !!python/object:logging.Formatter
+            _fmt: '%(asctime)s %(levelname)s %(message)s'
+            _style: !!python/object:logging.PercentStyle
+              _defaults: null
+              _fmt: '%(asctime)s %(levelname)s %(message)s'
+            datefmt: null
+          logger_stream_handler: null
+          no_proxy: null
+          password: null
+          proxy: null
+          proxy_headers: null
+          refresh_api_key_hook: null
+          retries: null
+          safe_chars_for_path_param: ''
+          ssl_ca_cert: null
+          temp_folder_path: null
+          tls_server_name: null
+          username: null
+          verify_ssl: true
+      discriminator: null
+      local_vars_configuration: !!python/object:kubernetes.client.configuration.Configuration
+        _Configuration__debug: false
+        _Configuration__logger_file: null
+        _Configuration__logger_format: '%(asctime)s %(levelname)s %(message)s'
+        api_key: {}
+        api_key_prefix: {}
+        assert_hostname: null
+        cert_file: null
+        client_side_validation: true
+        connection_pool_maxsize: 40
+        discard_unknown_keys: false
+        host: http://localhost
+        key_file: null
+        logger:
+          package_logger: *id001
+          urllib3_logger: *id002
+        logger_file_handler: null
+        logger_formatter: !!python/object:logging.Formatter
+          _fmt: '%(asctime)s %(levelname)s %(message)s'
+          _style: !!python/object:logging.PercentStyle
+            _defaults: null
+            _fmt: '%(asctime)s %(levelname)s %(message)s'
+          datefmt: null
+        logger_stream_handler: null
+        no_proxy: null
+        password: null
+        proxy: null
+        proxy_headers: null
+        refresh_api_key_hook: null
+        retries: null
+        safe_chars_for_path_param: ''
+        ssl_ca_cert: null
+        temp_folder_path: null
+        tls_server_name: null
+        username: null
+        verify_ssl: true
+    _ports: null
+    discriminator: null
+    local_vars_configuration: !!python/object:kubernetes.client.configuration.Configuration
+      _Configuration__debug: false
+      _Configuration__logger_file: null
+      _Configuration__logger_format: '%(asctime)s %(levelname)s %(message)s'
+      api_key: {}
+      api_key_prefix: {}
+      assert_hostname: null
+      cert_file: null
+      client_side_validation: true
+      connection_pool_maxsize: 40
+      discard_unknown_keys: false
+      host: http://localhost
+      key_file: null
+      logger:
+        package_logger: *id001
+        urllib3_logger: *id002
+      logger_file_handler: null
+      logger_formatter: !!python/object:logging.Formatter
+        _fmt: '%(asctime)s %(levelname)s %(message)s'
+        _style: !!python/object:logging.PercentStyle
+          _defaults: null
+          _fmt: '%(asctime)s %(levelname)s %(message)s'
+        datefmt: null
+      logger_stream_handler: null
+      no_proxy: null
+      password: null
+      proxy: null
+      proxy_headers: null
+      refresh_api_key_hook: null
+      retries: null
+      safe_chars_for_path_param: ''
+      ssl_ca_cert: null
+      temp_folder_path: null
+      tls_server_name: null
+      username: null
+      verify_ssl: true
+  _pod_selector: !!python/object:kubernetes.client.models.v1_label_selector.V1LabelSelector
+    _match_expressions: null
+    _match_labels:
+      app: AppB
+    discriminator: null
+    local_vars_configuration: !!python/object:kubernetes.client.configuration.Configuration
+      _Configuration__debug: false
+      _Configuration__logger_file: null
+      _Configuration__logger_format: '%(asctime)s %(levelname)s %(message)s'
+      api_key: {}
+      api_key_prefix: {}
+      assert_hostname: null
+      cert_file: null
+      client_side_validation: true
+      connection_pool_maxsize: 40
+      discard_unknown_keys: false
+      host: http://localhost
+      key_file: null
+      logger:
+        package_logger: *id001
+        urllib3_logger: *id002
+      logger_file_handler: null
+      logger_formatter: !!python/object:logging.Formatter
+        _fmt: '%(asctime)s %(levelname)s %(message)s'
+        _style: !!python/object:logging.PercentStyle
+          _defaults: null
+          _fmt: '%(asctime)s %(levelname)s %(message)s'
+        datefmt: null
+      logger_stream_handler: null
+      no_proxy: null
+      password: null
+      proxy: null
+      proxy_headers: null
+      refresh_api_key_hook: null
+      retries: null
+      safe_chars_for_path_param: ''
+      ssl_ca_cert: null
+      temp_folder_path: null
+      tls_server_name: null
+      username: null
+      verify_ssl: true
+  _policy_types:
+  - Ingress
+  discriminator: null
+  local_vars_configuration: !!python/object:kubernetes.client.configuration.Configuration
+    _Configuration__debug: false
+    _Configuration__logger_file: null
+    _Configuration__logger_format: '%(asctime)s %(levelname)s %(message)s'
+    api_key: {}
+    api_key_prefix: {}
+    assert_hostname: null
+    cert_file: null
+    client_side_validation: true
+    connection_pool_maxsize: 40
+    discard_unknown_keys: false
+    host: http://localhost
+    key_file: null
+    logger:
+      package_logger: *id001
+      urllib3_logger: *id002
+    logger_file_handler: null
+    logger_formatter: !!python/object:logging.Formatter
+      _fmt: '%(asctime)s %(levelname)s %(message)s'
+      _style: !!python/object:logging.PercentStyle
+        _defaults: null
+        _fmt: '%(asctime)s %(levelname)s %(message)s'
+      datefmt: null
+    logger_stream_handler: null
+    no_proxy: null
+    password: null
+    proxy: null
+    proxy_headers: null
+    refresh_api_key_hook: null
+    retries: null
+    safe_chars_for_path_param: ''
+    ssl_ca_cert: null
+    temp_folder_path: null
+    tls_server_name: null
+    username: null
+    verify_ssl: true
+discriminator: null
+local_vars_configuration: !!python/object:kubernetes.client.configuration.Configuration
+  _Configuration__debug: false
+  _Configuration__logger_file: null
+  _Configuration__logger_format: '%(asctime)s %(levelname)s %(message)s'
+  api_key: {}
+  api_key_prefix: {}
+  assert_hostname: null
+  cert_file: null
+  client_side_validation: true
+  connection_pool_maxsize: 40
+  discard_unknown_keys: false
+  host: http://localhost
+  key_file: null
+  logger:
+    package_logger: *id001
+    urllib3_logger: *id002
+  logger_file_handler: null
+  logger_formatter: !!python/object:logging.Formatter
+    _fmt: '%(asctime)s %(levelname)s %(message)s'
+    _style: !!python/object:logging.PercentStyle
+      _defaults: null
+      _fmt: '%(asctime)s %(levelname)s %(message)s'
+    datefmt: null
+  logger_stream_handler: null
+  no_proxy: null
+  password: null
+  proxy: null
+  proxy_headers: null
+  refresh_api_key_hook: null
+  retries: null
+  safe_chars_for_path_param: ''
+  ssl_ca_cert: null
+  temp_folder_path: null
+  tls_server_name: null
+  username: null
+  verify_ssl: true

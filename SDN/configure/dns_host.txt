@@ -1,0 +1,67 @@
+
+
+192.168.50.3   k8scontroler2.k8sdemo.com k8scontroler2
+192.168.50.2   k8scontroler1.k8sdemo.com  k8scontroler1
+192.168.50.8   k8scontroler3.k8sdemo.com  k8scontroler3
+192.168.50.4   node1k8s.k8sdemo.com  node1k8s
+192.168.50.5   node2k8s.k8sdemo.com  node2k8s
+192.168.50.6   node3k8s.k8sdemo.com node3k8s
+192.168.50.7   node4k8s.k8sdemo.com node4k8s
+192.168.50.9   node5k8s.k8sdemo.com node5k8s
+192.168.50.11  node6k8s.k8sdemo.com node6k8s
+192.168.50.12  node7k8s.k8sdemo.com node7k8s
+
+192.168.50.11  node6k8s.k8sdemo.com
+192.168.50.9   node5k8s.k8sdemo.com
+192.168.50.7   node4k8s.k8sdemo.com
+192.168.50.6   node3k8s.k8sdemo.com
+192.168.50.5   node2k8s.k8sdemo.com
+192.168.50.4   node1k8s.k8sdemo.com
+192.168.50.8   k8scontroler3.k8sdemo.com
+192.168.50.2   k8scontroler1.k8sdemo.com
+192.168.50.3   k8scontroler2.k8sdemo.com
+192.168.50.12  node7k8s.k8sdemo.com
+
+
+
+
+kubectl get nodes
+kubectl cluster-info
+@dm1n@123#
+controler 
+sudo kubeadm init --control-plane-endpoint=192.168.50.10 --upload-certs --apiserver-advertise-address=192.168.50.3
+etcdctl --endpoints=192.168.50.10 cluster-health
+
+
+
+
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+You can now join any number of the control-plane node running the following command on each as root:
+
+kubeadm join 192.168.50.10:6443 --token 2exrom.5mn9mdes39wuo8ch --discovery-token-ca-cert-hash sha256:3fa10bbe233bf939dd3e43f8995ebed81217424a69e5ef2b9fa4caf9d55412b8 --control-plane --certificate-key 43e2880ee2a7edd592829c37415c79f8e23c11996f0a10e79ff1ce7f04e54d56
+
+Please note that the certificate-key gives access to cluster sensitive data, keep it secret!
+As a safeguard, uploaded-certs will be deleted in two hours; If necessary, you can use
+"kubeadm init phase upload-certs --upload-certs" to reload certs afterward.
+
+kubeadm join 192.168.50.10:6443 --token 2exrom.5mn9mdes39wuo8ch --discovery-token-ca-cert-hash sha256:3fa10bbe233bf939dd3e43f8995ebed81217424a69e5ef2b9fa4caf9d55412b8
+
+Then you can join any number of worker nodes by running the following on each as root:
+kubeadm join 192.168.50.10:6443 --token 76q5pa.85eweryig92cl6hm --discovery-token-ca-cert-hash sha256:3fa10bbe233bf939dd3e43f8995ebed81217424a69e5ef2b9fa4caf9d55412b8
+kubeadm join 192.168.50.10:6443 --token 2exrom.5mn9mdes39wuo8ch \
+        --discovery-token-ca-cert-hash sha256:3fa10bbe233bf939dd3e43f8995ebed81217424a69e5ef2b9fa4caf9d55412b8

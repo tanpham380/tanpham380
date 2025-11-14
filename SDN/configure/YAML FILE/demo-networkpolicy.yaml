@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tools
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: appa-pod
+  namespace: tools  
+  labels:
+    app: AppA
+spec:
+  containers:
+  - name: alpine
+    image: alpine:latest
+    command: ["/bin/sh"]
+    args: ["-c", "sleep 3600"] 
+--- 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: appb-pod
+  namespace: tools  
+  labels:
+    app: AppB
+spec:
+  containers:
+  - name: alpine
+    image: alpine:latest
+    command: ["/bin/sh"]
+    args: ["-c", "sleep 3600"] 
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: appc-pod
+  namespace: tools  
+  labels:
+    app: AppC
+spec:
+  containers:
+  - name: alpine
+    image: alpine:latest
+    command: ["/bin/sh"]
+    args: ["-c", "sleep 3600"] 
+---
+# apiVersion: networking.k8s.io/v1
+# kind: NetworkPolicy
+# metadata:
+#   name: deny-appa-to-appb
+#   namespace: tools
+# spec:
+#   podSelector:
+#     matchLabels:
+#       app: AppB
+#   policyTypes:
+#   - Ingress
+#   ingress:
+#   - from:
+#     - podSelector:
+#         matchExpressions:
+#           - {key: app, operator: NotIn, values: ["AppA"]}
+

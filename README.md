@@ -105,6 +105,30 @@ I’m a DevOps Engineer with a passion for automation, scalability, and problem-
   </a>
 </p>
 
+---
+
+## SDN Project: Software Defined Networking Demo on K8s
+
+This repository includes my capstone project: **Software Defined Networking Demo on Kubernetes**. The project demonstrates practical implementation of network policies, high availability configurations, and automation scripts for Kubernetes environments.
+
+### What is Software Defined Networking?
+Software Defined Networking (SDN) is a network architecture approach that separates the control plane (decision-making) from the data plane (data forwarding), enabling centralized, programmable network management. Unlike traditional networks, SDN allows dynamic configuration of network devices via software, improving flexibility, scalability, and automation in environments like data centers and cloud infrastructures.
+
+### Key Highlights
+- **Network Policies**: Implemented deny-by-default, whitelist services, and inter-namespace traffic restrictions using Kubernetes NetworkPolicy.
+- **High Availability**: Configured Keepalived and HAProxy for service redundancy.
+- **Automation Scripts**: Python scripts for importing/exporting cluster configurations, testing policies, and log collection.
+- **Artifacts**: Includes flowcharts, reports, slides, and demo videos.
+
+### Project Structure
+- `SDN/configure/` - Configuration files (Keepalived, HA, DNS, YAML samples).
+- `SDN/DevCode/` - Source code and scripts (Python, NetworkPolicy examples).
+- `SDN/test/` - Testing scripts.
+- `SDN/Flowchart/`, `SDN/Image/`, `SDN/Report/`, `SDN/Slide/`, `SDN/video/` - Project documentation and demos.
+
+For detailed setup, examples, and instructions, see [`SDN/README.md`](./SDN/README.md). For the official project report, see [CP_Report_ver5.pdf](./SDN/Report/CP_Report_ver5.pdf).
+
+
 
 
 

@@ -1,0 +1,44 @@
+Memu App
+1) tạo Policy -> một Memu tạo policy
+2) xóa Policy -> Memu xóa 
+3) xem các Policy đã áp dụng
+4) thoát
+
+Memu Xóa Polciy
+mặc định sẽ print ra các networkpolicy hiện có trong K8s ở namespace nào
+1) Kiểm tra lại trạng thái
+2) chọn số Network policy -> xem lại Policy đó áp dụng lên những phần thành nào ->> Y để xác nhận xóa N để back lại
+3) Thoát
+
+
+Memu tạo Polciy
+mặc định sẽ print ra các networkpolicy hiện có trong K8s ở namespace nào
+1) tạo network Policy cùng một Namespace -> chọn option Namespace áp dụng
+2) tạo Policy khác NameSpace
+3) tạo policy dựa trên dải IP T
+4) Thoát
+
+
+Memu Tạo network policy cùng NameSpace
+print ra sự Network policy cùng Namespace cần cung cấp podSelector 
+1) set podSelector (App cần áp chính sách lên)
+2) set đối tượng chính sách áp dụng(Ingress or Egress)
+3) ghi chú
+4) xuất file yaml
+5) thoát
+
+Memu Tạo network policy khác NameSpace
+print ra sự Network policy cùng Namespace cần cung cấp namespaceSelector  và podSelector
+1) set namespaceSelector và podSelector (App cần áp chính sách lên)
+2) set đối tượng chính sách áp dụng(Ingress or Egress)
+3) ghi chú
+4) xuất file yaml
+5) thoát
+
+Memu Tạo network policy dựa trên dải IP
+print ra sự Network policy cùng Namespace cần cung cấp ipBlock         cidr: 0.0.0.0/0
+1) set namespaceSelector và podSelector (App cần áp chính sách lên)
+2) set đối tượng chính sách áp dụng(Ingress or Egress)
+3) ghi chú
+4) xuất file yaml
+5) thoát

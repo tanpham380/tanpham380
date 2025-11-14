@@ -1,0 +1,48 @@
+# List namespaces
+kubectl get namespaces
+
+# List all pods in all namespaces
+kubectl get pods --all-namespaces -o wide
+
+# List all services in all namespaces
+kubectl get services --all-namespaces -o wide
+
+# List all deployments in all namespaces
+kubectl get deployments --all-namespaces -o wide
+
+# List all statefulsets in all namespaces
+kubectl get statefulsets --all-namespaces -o wide
+
+# List all configmaps in all namespaces
+kubectl get configmaps --all-namespaces -o wide
+
+# List all secrets in all namespaces
+kubectl get secrets --all-namespaces -o wide
+
+# List all persistent volume claims (PVCs) in all namespaces
+kubectl get pvc --all-namespaces -o wide
+
+# List all persistent volumes (PVs)
+kubectl get pv
+
+# Describe nodes
+kubectl describe nodes
+
+# Describe namespaces
+kubectl describe namespaces
+
+# Describe all pods in all namespaces
+kubectl get pods --all-namespaces -o custom-columns="NAMESPACE:.metadata.namespace,NAME:.metadata.name" | \
+  xargs -I {} kubectl describe pod -n {} {}
+
+# Describe all services in all namespaces
+kubectl get services --all-namespaces -o custom-columns="NAMESPACE:.metadata.namespace,NAME:.metadata.name" | \
+  xargs -I {} kubectl describe service -n {} {}
+
+# Describe all deployments in all namespaces
+kubectl get deployments --all-namespaces -o custom-columns="NAMESPACE:.metadata.namespace,NAME:.metadata.name" | \
+  xargs -I {} kubectl describe deployment -n {} {}
+
+# Describe all statefulsets in all namespaces
+kubectl get statefulsets --all-namespaces -o custom-columns="NAMESPACE:.metadata.namespace,NAME:.metadata.name" | \
+  xargs -I {} kubectl describe statefulset -n {} {}
