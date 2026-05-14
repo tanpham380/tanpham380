@@ -36,9 +36,11 @@
 
 - 🎓 Graduate from **FPT University** in Information Assurance
 - 🛠️ Built strong fundamentals through **IT Helpdesk** and **IT System operations** (incident handling, user support, system maintenance)
+- 🧑‍💼 Managed **Office 365 / Entra ID**, **Exchange**, **Teams**, user licensing, and Microsoft Purview compliance/eDiscovery automation with PowerShell
+- 🌐 Configured **DNS servers**, AD policy baselines, and endpoint management using **Desktop Central**
 - 🏗️ Hands-on in **VMware vSphere** operations (ESXi, vCenter, vSAN, Horizon) for on-prem infrastructure
 - ☸️ Built and operated **Kubernetes HA** environments with **HAProxy**, **Keepalived**, and policy-driven networking
-- 🐳 Automated delivery workflows using **Gitlab CICD** **Docker**, **Portainer**, **Traefik**, and Python scripting
+- 🐳 Automated delivery workflows using **Gitlab CICD**, **Docker**, **Portainer**, **Traefik**, and Python scripting
 - 🔐 Applied practical networking and security with Cisco switching, VLAN/L2/L3, and firewall stacks (pfSense, OPNsense, Sophos, Fortigate)
 - 🌐 Documented branch connectivity and operations patterns for **MPLS network** environments
 - 📈 Focused on reliability, scalability, and continuous operational improvement
