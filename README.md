@@ -106,15 +106,15 @@
 ## GitHub Analytics
 
 <p align="center">
-  <a href="https://github.com/tanpham380?tab=repositories">
+  <!-- <a href="https://github.com/tanpham380?tab=repositories">
     <img height="165" src="https://github-readme-stats.vercel.app/api?username=tanpham380&show_icons=true&theme=tokyonight&hide_border=true" alt="GitHub Stats" />
-  </a>
+  </a> -->
   <a href="https://streak-stats.demolab.com/?user=tanpham380" target="_blank">
     <img height="165" src="https://streak-stats.demolab.com/?user=tanpham380&theme=tokyonight&hide_border=true" alt="GitHub Contribution Streak" />
   </a>
-  <a href="https://github.com/tanpham380?tab=repositories">
+  <!-- <a href="https://github.com/tanpham380?tab=repositories">
     <img height="165" src="https://github-readme-stats.vercel.app/api/top-langs/?username=tanpham380&layout=compact&langs_count=8&card_width=320&theme=tokyonight&hide_border=true" alt="Top Languages" />
-  </a>
+  </a> -->
 </p>
 
 ---
