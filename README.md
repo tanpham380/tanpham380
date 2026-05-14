@@ -1,145 +1,161 @@
-<h1 align="center">Hi 👋, I'm Phạm Thanh Tân</h1>
-<h3 align="center">DevOps Engineer Intern specializing in Kubernetes, Python, and Cloud Infrastructures from Vietnam</h3>
+<h1 align="center">Phạm Thanh Tân | DevOps and Virtualization Engineer</h1>
+<h3 align="center">Operating on-prem infrastructure and cloud-native Kubernetes platforms with an automation-first mindset.</h3>
 
-<p align="left">
+<p align="center">
   <img src="https://komarev.com/ghpvc/?username=tanpham380&color=orange" alt="Profile views" />
-</p>
-
-### Resume / CV
-<p align="left">
-  <a href="./cv/PhamThanhTan-ENG.pdf" title="Download CV (English)">
-    <img src="https://img.shields.io/badge/CV-English-blue?style=for-the-badge&logo=adobe&logoColor=white" alt="Download CV English" />
-  </a>
-  &nbsp;
-  <a href="./cv/PhamThanhTan-VIE.pdf" title="Download CV (Vietnamese)">
-    <img src="https://img.shields.io/badge/CV-Vietnamese-red?style=for-the-badge&logo=adobe&logoColor=white" alt="Download CV Vietnamese" />
-  </a>
-</p>
-
-
-[![](./src/header_.png)](#)
-
-**About Me**  
-- 🔭 I’m a recent graduate of **FPT University**  
-- 🌱 Currently exploring **Docker and Kubernetes** to build private cloud infrastructures  
-- 💬 Interested in discussing **Simple ML and DL** concepts  
-- 📫 Reach me at **Phamthanhtanlop92@gmail.com**  
-- 💼 Experience: **Under 2 years in DevOps-related roles**  
-- ⚡ Fun fact: **I believe in hard work and continuous learning**
-
-<img align="right" alt="Coding" width="400" src="./src/me_1.gif">
-
-I’m a DevOps Engineer with a passion for automation, scalability, and problem-solving. My background includes experience with Python, Django, Flutter, VMware ESXi, Microservices, and various backend technologies. I’m always eager to socialize, learn, and take on new challenges.
-
----
-
-### Connect with me
-<p align="left">
-  <a href="https://www.linkedin.com/in/ph%E1%BA%A1m-thanh-t%C3%A2n-b355a3254/" target="_blank">
-    <img align="center" src="./src/linked-in-alt.svg" alt="LinkedIn" height="30" width="40" />
-  </a>
-  <a href="https://www.facebook.com/ChuChimChuych/" target="_blank">
-    <img align="center" src="./src/facebook.png" alt="Facebook" height="40" width="40" />
-  </a>
-  <a href="https://www.instagram.com/chusoicon.c/" target="_blank">
-    <img align="center" src="./src/instagram.png" alt="Instagram" height="40" width="40" />
-  </a>
-  <a href="mailto:Phamthanhtanlop92@gmail.com" target="_blank">
-    <img align="center" src="https://img.shields.io/badge/Gmail-D14836?style=flat&logo=gmail&logoColor=white" alt="Email" height="30" width="70" />
-  </a>
-</p>
-
----
-
-### Languages and Tools
-<p align="left">
-  <a href="https://git-scm.com/" target="_blank" rel="noreferrer">
-    <img src="./src/git-scm-icon.svg" alt="Git" width="40" height="40" />
-  </a> 
-  <a href="https://www.microsoft.com/en-us/sql-server" target="_blank" rel="noreferrer">
-    <img src="./src/microsoft-sql-server-logo.svg" alt="MSSQL" width="40" height="40" />
-  </a> 
-  <a href="https://www.vmware.com/" target="_blank" rel="noreferrer">
-    <img src="./src/vmware-logo.png" alt="VMware" width="40" height="40" />
-  </a> 
-  <a href="https://kubernetes.io/" target="_blank" rel="noreferrer">
-    <img src="./src/kubernetes-icon.svg" alt="Kubernetes" width="40" height="40" />
-  </a>
-  <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
-    <img src="./src/docker-official.svg" alt="Docker" width="40" height="40" />
-  </a> 
-  <a href="https://www.linux.org/" target="_blank" rel="noreferrer">
-    <img src="./src/linux-tux.svg" alt="Linux" width="40" height="40" />
-  </a>
-  <a href="https://www.python.org" target="_blank" rel="noreferrer">
-    <img src="./src/python-original.svg" alt="Python" width="40" height="40" />
-  </a> 
-  <a href="https://flutter.dev/" target="_blank" rel="noreferrer">
-    <img src="./src/flutter_logo.svg" alt="Flutter" width="40" height="40" />
-  </a>
-</p>
-
----
-
-### Projects
-<p align="left">
-  - [**Software Defined Networking Demo on K8s**](./software-defined-networking/) - Capstone project demonstrating network policies, high availability configurations, and automation scripts in Kubernetes environments.
-  - [Explore more on my GitHub](https://github.com/tanpham380?tab=repositories) - Additional projects and repositories.
-</p>
-
----
-<p align="left">
-  <!-- Stats card (shows commits, PRs, issues, stars) -->
-  <a href="https://github.com/tanpham380?tab=repositories">
-    <img height="160" src="https://github-readme-stats.vercel.app/api?username=tanpham380&show_icons=true&theme=radical&hide_border=true" alt="GitHub Stats" />
-  </a>
-  &nbsp;
-  <!-- Streak card -->
-  <a href="https://streak-stats.demolab.com/?user=tanpham380" target="_blank">
-    <img height="160" src="https://streak-stats.demolab.com/?user=tanpham380&theme=radical&hide_border=true" alt="GitHub Contribution Streak" />
-  </a>
-  &nbsp;
-  <!-- Top languages card (compact layout) -->
-  <a href="https://github.com/tanpham380?tab=repositories">
-    <img height="160" src="https://github-readme-stats.vercel.app/api/top-langs/?username=tanpham380&layout=compact&langs_count=8&card_width=320&theme=radical&hide_border=true" alt="Top Languages Used" />
-  </a>
-</p>
-
----
-
-### Fun Visuals
-<p align="center">
-  <a href="https://github.com/marketplace/actions/generate-snake-game-from-github-contribution-grid">
-    <img src="https://raw.githubusercontent.com/tanpham380/tanpham380/output/github-contribution-grid-snake.svg" alt="GitHub Contribution Grid Snake" />
-  </a>
-</p>
-<p align="center">
   <img src="https://img.shields.io/github/followers/tanpham380?style=social" alt="GitHub Followers" />
   <img src="https://img.shields.io/github/stars/tanpham380/tanpham380?style=social" alt="GitHub Stars" />
 </p>
 
+<p align="center">
+  <a href="#english-version"><img src="https://img.shields.io/badge/Read-English-1F6FEB?style=flat-square" alt="Read in English" /></a>
+  <a href="#phien-ban-tieng-viet"><img src="https://img.shields.io/badge/Doc-Tieng%20Viet-DA251D?style=flat-square" alt="Doc bang Tieng Viet" /></a>
+</p>
+
+<p align="center">
+  <a href="https://raw.githubusercontent.com/tanpham380/tanpham380/main/cv/PhamThanhTan-ENG.pdf" title="Download CV (English)">
+    <img src="https://img.shields.io/badge/CV-English-0A66C2?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="CV English" />
+  </a>
+  <a href="https://raw.githubusercontent.com/tanpham380/tanpham380/main/cv/PhamThanhTan-VIE.pdf" title="Download CV (Vietnamese)">
+    <img src="https://img.shields.io/badge/CV-Vietnamese-B22222?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="CV Vietnamese" />
+  </a>
+  <a href="mailto:Phamthanhtanlop92@gmail.com" title="Send email">
+    <img src="https://img.shields.io/badge/Email-Phamthanhtanlop92%40gmail.com-EA4335?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" />
+  </a>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/tanpham380/tanpham380/main/src/header_.png" alt="Profile header" />
+</p>
+
 ---
 
-## SDN Project: Software Defined Networking Demo on K8s
+## About Me
 
-This repository includes my capstone project: **Software Defined Networking Demo on Kubernetes**. The project demonstrates practical implementation of network policies, high availability configurations, and automation scripts for Kubernetes environments.
+<img align="right" alt="Coding" width="360" src="https://raw.githubusercontent.com/tanpham380/tanpham380/main/src/me_1.gif" />
 
-### What is Software Defined Networking?
-Software Defined Networking (SDN) is a network architecture approach that separates the control plane (decision-making) from the data plane (data forwarding), enabling centralized, programmable network management. Unlike traditional networks, SDN allows dynamic configuration of network devices via software, improving flexibility, scalability, and automation in environments like data centers and cloud infrastructures.
+- 🎓 Graduate from **FPT University** in Information Assurance
+- 🛠️ Built strong fundamentals through **IT Helpdesk** and **IT System operations** (incident handling, user support, system maintenance)
+- 🏗️ Hands-on in **VMware vSphere** operations (ESXi, vCenter, vSAN, Horizon) for on-prem infrastructure
+- ☸️ Built and operated **Kubernetes HA** environments with **HAProxy**, **Keepalived**, and policy-driven networking
+- 🐳 Automated delivery workflows using **Gitlab CICD** **Docker**, **Portainer**, **Traefik**, and Python scripting
+- 🔐 Applied practical networking and security with Cisco switching, VLAN/L2/L3, and firewall stacks (pfSense, OPNsense, Sophos, Fortigate)
+- 🌐 Documented branch connectivity and operations patterns for **MPLS network** environments
+- 📈 Focused on reliability, scalability, and continuous operational improvement
 
-### Key Highlights
-- **Network Policies**: Implemented deny-by-default, whitelist services, and inter-namespace traffic restrictions using Kubernetes NetworkPolicy.
-- **High Availability**: Configured Keepalived and HAProxy for service redundancy.
-- **Automation Scripts**: Python scripts for importing/exporting cluster configurations, testing policies, and log collection.
-- **Artifacts**: Includes flowcharts, reports, slides, and demo videos.
+<p>
+  <img src="https://img.shields.io/badge/Role-DevOps%20%26%20Virtualization%20Engineer-0A66C2?style=flat-square" alt="Role" />
+  <img src="https://img.shields.io/badge/Focus-Kubernetes-326CE5?style=flat-square&logo=kubernetes&logoColor=white" alt="Focus Kubernetes" />
+  <img src="https://img.shields.io/badge/Focus-Docker-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Focus Docker" />
+  <img src="https://img.shields.io/badge/Base-Linux-FCC624?style=flat-square&logo=linux&logoColor=black" alt="Base Linux" />
+</p>
 
-### Project Structure
-- `software-defined-networking/configure/` - Configuration files (keepalived, HA, DNS, YAML samples).
-- `software-defined-networking/code/` - Source code and scripts (Python, NetworkPolicy examples).
-- `software-defined-networking/test/` - Testing scripts.
-- `software-defined-networking/flowcharts/`, `software-defined-networking/images/`, `software-defined-networking/reports/`, `software-defined-networking/slides/`, `software-defined-networking/videos/` - Project documentation and demos.
+---
 
-For detailed setup, examples, and instructions, see [`software-defined-networking/README.md`](./software-defined-networking/README.md). For the official project report, see [cp-report-v5.pdf](./software-defined-networking/reports/cp-report-v5.pdf).
+## English Version
+
+Short profile in English is summarized in **About Me**.
+For full details, use [CV English](https://raw.githubusercontent.com/tanpham380/tanpham380/main/cv/PhamThanhTan-ENG.pdf).
+
+## Phien Ban Tieng Viet
+
+Tom tat tieng Viet da duoc rut gon trong **About Me**.
+Chi tiet day du xem tai [CV Vietnamese](https://raw.githubusercontent.com/tanpham380/tanpham380/main/cv/PhamThanhTan-VIE.pdf).
+
+---
+
+## Connect
+
+<p align="center">
+  <a href="https://www.linkedin.com/in/ph%E1%BA%A1m-thanh-t%C3%A2n-b355a3254/" target="_blank">
+    <img src="https://img.shields.io/badge/LinkedIn-Ph%E1%BA%A1m%20Thanh%20T%C3%A2n-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" />
+  </a>
+  <a href="https://www.facebook.com/ChuChimChuych/" target="_blank">
+    <img src="https://img.shields.io/badge/Facebook-Profile-1877F2?style=for-the-badge&logo=facebook&logoColor=white" alt="Facebook" />
+  </a>
+  <a href="https://www.instagram.com/chusoicon.c/" target="_blank">
+    <img src="https://img.shields.io/badge/Instagram-@chusoicon.c-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram" />
+  </a>
+</p>
+
+---
+
+## Skills Matrix
+
+| Category | Stack |
+| --- | --- |
+| Cloud and Containers | ![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat-square&logo=kubernetes&logoColor=white) ![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat-square&logo=docker&logoColor=white) ![VMware](https://img.shields.io/badge/VMware-607078?style=flat-square&logo=vmware&logoColor=white) |
+| CI/CD and Ops Tools | ![Git](https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white) ![Linux](https://img.shields.io/badge/Linux-FCC624?style=flat-square&logo=linux&logoColor=black) ![HAProxy](https://img.shields.io/badge/HAProxy-106DA9?style=flat-square&logo=haproxy&logoColor=white) ![Keepalived](https://img.shields.io/badge/Keepalived-2F855A?style=flat-square) |
+| IT System and Support | ![IT Helpdesk](https://img.shields.io/badge/IT%20Helpdesk-0A66C2?style=flat-square) ![Windows Server](https://img.shields.io/badge/Windows%20Server-0078D6?style=flat-square&logo=windows&logoColor=white) ![System Operations](https://img.shields.io/badge/System%20Operations-334155?style=flat-square) |
+| Languages and Backend | ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white) ![Django](https://img.shields.io/badge/Django-092E20?style=flat-square&logo=django&logoColor=white) ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat-square&logo=flutter&logoColor=white) |
+| Data and Platform | ![Microsoft SQL Server](https://img.shields.io/badge/Microsoft%20SQL%20Server-CC2927?style=flat-square&logo=microsoftsqlserver&logoColor=white) ![Microservices](https://img.shields.io/badge/Microservices-4A5568?style=flat-square) |
+
+---
+
+## Featured Projects
+
+- **Software Defined Networking Demo on Kubernetes**
+  Capstone project implementing secure service communication and high availability in Kubernetes with **NetworkPolicy**, **HAProxy**, **Keepalived**, and Python automation.
+  <br />
+  [Project overview](./SDN/README.md) | [Main report](./SDN/Report/CP_Report_ver5.pdf) | [Configs](./SDN/configure/) | [Source code](./SDN/DevCode/)
+
+- **More repositories**
+  Explore additional labs and projects on [my GitHub repositories](https://github.com/tanpham380?tab=repositories).
+
+- **Real-world use cases (Experiment Lab)**
+  Place practical scenarios, PoCs, and architecture tests in [experiment](./experiment/) to keep the profile clean while showing hands-on depth.
+
+- **Technical Guides (Network and Ops)**
+  Internal-style documentation for operational standards and implementation playbooks, including [MPLS Network Technical Guide](./experiment/network/MPLS-network-technical-guide.md).
+
+<details>
+  <summary><strong>SDN architecture flow (Mermaid demo)</strong></summary>
+
+```mermaid
+flowchart LR
+    U[Client/User] --> LB[HAProxy VIP via Keepalived]
+    LB --> C1[Control Plane]
+    LB --> W1[Worker Node A]
+    LB --> W2[Worker Node B]
+
+    subgraph Kubernetes Cluster
+      W1 --> P1[App Pod - Namespace A]
+      W2 --> P2[DB Pod - Namespace B]
+      P1 --> NP[NetworkPolicy Engine]
+      NP --> P2
+    end
+
+    C1 --> M[Monitoring and Logs]
+```
+
+</details>
+
+---
+
+## GitHub Analytics
+
+<p align="center">
+  <a href="https://github.com/tanpham380?tab=repositories">
+    <img height="165" src="https://github-readme-stats.vercel.app/api?username=tanpham380&show_icons=true&theme=tokyonight&hide_border=true" alt="GitHub Stats" />
+  </a>
+  <a href="https://streak-stats.demolab.com/?user=tanpham380" target="_blank">
+    <img height="165" src="https://streak-stats.demolab.com/?user=tanpham380&theme=tokyonight&hide_border=true" alt="GitHub Contribution Streak" />
+  </a>
+  <a href="https://github.com/tanpham380?tab=repositories">
+    <img height="165" src="https://github-readme-stats.vercel.app/api/top-langs/?username=tanpham380&layout=compact&langs_count=8&card_width=320&theme=tokyonight&hide_border=true" alt="Top Languages" />
+  </a>
+</p>
+
+---
+
+## Contributions Visual
+
+<p align="center">
+  <a href="https://github.com/marketplace/actions/generate-snake-game-from-github-contribution-grid">
+    <img src="https://raw.githubusercontent.com/tanpham380/tanpham380/output/github-contribution-grid-snake.svg" alt="GitHub Contribution Snake" />
+  </a>
+</p>
+
 
 
 

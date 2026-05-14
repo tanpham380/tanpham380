@@ -1,0 +1,81 @@
+sequenceDiagram
+    autonumber
+    participant PC as PC (Phòng Tư Vấn)
+    participant SW_TRET as Sw Trệt (VLAN 150)
+    participant SW_CORE as Sw Core Chi Nhánh
+    participant SW_L1 as Sw Lầu 1 (VLAN 150, 204)
+    participant SW_VT as Sw P.ViTính (BỊ LOOP)
+    participant HO as Core HO (DHCP Server)
+
+    Note over PC, HO: BƯỚC 1: DHCP DISCOVER BỊ RÒ RỈ (VLAN LEAKAGE) & GỘP BROADCAST DOMAIN
+    
+    rect rgba(0, 150, 255, 0.1)
+        PC->>SW_TRET: Gửi DHCP Discover (Broadcast)
+        SW_TRET->>SW_CORE: Đẩy lên Switch Core Chi Nhánh (VLAN 150)
+    end
+    
+    par Xử lý VLAN 150 (Chuẩn)
+        rect rgba(0, 150, 255, 0.1)
+            SW_CORE->>HO: IP Helper 150 (Set giaddr=150.x): Xin IP dải 150
+        end
+    and Rò rỉ qua Lầu 1 (Lỗi Loop)
+        rect rgba(255, 100, 100, 0.1)
+            SW_CORE->>SW_L1: L2 Flood: Đẩy Broadcast xuống Sw Lầu 1 (VLAN 150)
+            SW_L1->>SW_VT: Đẩy ra cổng Gi0/1 (VLAN 150)
+            Note over SW_L1, SW_VT: ⚠️ LỖI BROADCAST DOMAIN MERGING:<br/>Sw P.Vi Tính thiếu STP, đẩy Broadcast<br/>xuyên thủng ranh giới 2 VLAN!
+            SW_VT->>SW_L1: Gói Broadcast dội ngược vào cổng Gi0/8 (VLAN 204)
+            SW_L1->>SW_CORE: Đẩy ngược Broadcast lên Switch Core (VLAN 204)
+            SW_CORE->>HO: IP Helper 204 (Set giaddr=204.y): Xin IP dải 204
+        end
+    end
+
+    Note over PC, HO: BƯỚC 2: DHCP OFFER & HIỆN TƯỢNG RACE CONDITION (RFC 2131)
+    HO->>SW_CORE: Server Trả Offer IP dải 150.x
+    HO->>SW_CORE: Server Trả Offer IP dải 204.y
+    
+    par Đường về bình thường (IP 150)
+        rect rgba(0, 150, 255, 0.1)
+            SW_CORE->>SW_TRET: Đẩy thẳng xuống Sw Trệt
+            SW_TRET->>PC: PC nhận Offer 150 (Tới sau do Processing Delay)
+        end
+    and Đường về qua LOOP (IP 204)
+        rect rgba(255, 100, 100, 0.1)
+            SW_CORE->>SW_L1: Đẩy Offer 204.y xuống Lầu 1
+            SW_L1->>SW_VT: Đẩy xuống Sw P.Vi Tính (Gi0/8)
+            SW_VT->>SW_L1: Dội ngược sang VLAN 150 (Gi0/1)
+            SW_L1->>SW_CORE: Dội ngược lên Switch Core (VLAN 150)
+            SW_CORE->>SW_TRET: Sw Core đẩy xuống Sw Trệt
+            SW_TRET->>PC: PC nhận Offer 204 (Tới trước!)
+        end
+    end
+
+    Note over PC: Chuẩn DHCP (RFC 2131): "First come, first served"<br/>PC Quyết định chốt IP 204.y vì nhận được tín hiệu này trước!
+
+    Note over PC, HO: BƯỚC 3 & 4: REQUEST & ACK (Gói tin tiếp tục đi vòng)
+    
+    rect rgba(0, 150, 255, 0.1)
+        PC->>SW_TRET: DHCP Request: "Chốt IP 204.y" (Vẫn là Broadcast)
+        SW_TRET->>SW_CORE: Đẩy lên Sw Core (VLAN 150)
+    end
+    
+    Note over SW_CORE, SW_VT: Switch Core lờ Request trên VLAN 150 (vì xin IP 204).<br/>Tuy nhiên, gói Request lại bị Flood tiếp qua đường LOOP!
+    
+    rect rgba(255, 100, 100, 0.1)
+        SW_CORE->>SW_L1: Tràn xuống Lầu 1 (VLAN 150)
+        SW_L1->>SW_VT: Đẩy xuống P.Vi Tính (Gi0/1)
+        SW_VT->>SW_L1: Dội ngược lên VLAN 204 (Gi0/8)
+        SW_L1->>SW_CORE: Vòng lên Sw Core bằng đường VLAN 204
+        
+        SW_CORE->>HO: Lõi bóc gói thấy khớp giaddr=204 -> Gửi Request về HO
+        HO->>SW_CORE: DHCP ACK (Xác nhận cấp)
+        
+        Note over SW_CORE, PC: Gói ACK lại đi vòng y hệt như Offer 204.y để về PC
+        SW_CORE->>SW_L1: Đẩy xuống Lầu 1 (VLAN 204)
+        SW_L1->>SW_VT: Đi qua Sw P.Vi Tính
+        SW_VT->>SW_L1: Dội sang VLAN 150
+        SW_L1->>SW_CORE: Lên lại Sw Core (VLAN 150)
+        SW_CORE->>SW_TRET: Đẩy xuống Sw Trệt
+        SW_TRET->>PC: PC chính thức dính IP 204.y!
+    end
+    
+    Note over PC, HO: 💡 CISCO RECOMMENDATION (GIẢI PHÁP CHẶN ĐỨT ĐIỂM):<br/>- Cấu hình Spanning-Tree BPDU Guard trên Sw Lầu 1 (Chặn cổng loop)<br/>- Cấu hình DHCP Snooping (Chỉ Trust cổng Uplink, chặn DHCP dị thường)
