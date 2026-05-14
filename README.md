@@ -54,15 +54,9 @@
 
 ---
 
-## English Version
-
-Short profile in English is summarized in **About Me**.
-For full details, use [CV English](https://raw.githubusercontent.com/tanpham380/tanpham380/main/cv/PhamThanhTan-ENG.pdf).
-
-## Phien Ban Tieng Viet
-
-Tom tat tieng Viet da duoc rut gon trong **About Me**.
-Chi tiet day du xem tai [CV Vietnamese](https://raw.githubusercontent.com/tanpham380/tanpham380/main/cv/PhamThanhTan-VIE.pdf).
+## CV
+[CV English](https://raw.githubusercontent.com/tanpham380/tanpham380/main/cv/PhamThanhTan-ENG.pdf).
+[CV Vietnamese](https://raw.githubusercontent.com/tanpham380/tanpham380/main/cv/PhamThanhTan-VIE.pdf).
 
 ---
 
@@ -106,31 +100,6 @@ Chi tiet day du xem tai [CV Vietnamese](https://raw.githubusercontent.com/tanpha
 
 - **Real-world use cases (Experiment Lab)**
   Place practical scenarios, PoCs, and architecture tests in [experiment](./experiment/) to keep the profile clean while showing hands-on depth.
-
-- **Technical Guides (Network and Ops)**
-  Internal-style documentation for operational standards and implementation playbooks, including [MPLS Network Technical Guide](./experiment/network/MPLS-network-technical-guide.md).
-
-<details>
-  <summary><strong>SDN architecture flow (Mermaid demo)</strong></summary>
-
-```mermaid
-flowchart LR
-    U[Client/User] --> LB[HAProxy VIP via Keepalived]
-    LB --> C1[Control Plane]
-    LB --> W1[Worker Node A]
-    LB --> W2[Worker Node B]
-
-    subgraph Kubernetes Cluster
-      W1 --> P1[App Pod - Namespace A]
-      W2 --> P2[DB Pod - Namespace B]
-      P1 --> NP[NetworkPolicy Engine]
-      NP --> P2
-    end
-
-    C1 --> M[Monitoring and Logs]
-```
-
-</details>
 
 ---
 
