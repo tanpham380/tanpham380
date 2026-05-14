@@ -11,7 +11,8 @@ Focuses on protocol stability and troubleshooting complex loop issues.
 
 
 * **VLAN Leaking & Layer 2 Loops:**
-  * *Use Case:* Preventing broadcast storms in enterprise environments using STP and proper VLAN tagging.
+  * *Use Case:* Preventing broadcast storms in enterprise environments using STP and proper VLAN tagging. 
+  * *Problem:* The PC in the Consulting Room belongs to VLAN 150, but it ultimately received an IP address from VLAN 204, which is designated for a different range.
   * *Diagram:*
 ```mermaid
 sequenceDiagram
