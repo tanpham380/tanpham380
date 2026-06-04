@@ -1,9 +1,8 @@
-
 ### 📌 Overview
 
 This repository serves as a technical sandbox for researching, documenting, and implementing advanced solutions in Network infrastructure, System automation, and On-premise services.
 
-#### 1. Network Infrastructure
+### 1. Network Infrastructure
 
 * **MPLS L3VPN Data Forwarding (Branch to HO):**
 * *Use Case:* Ensuring secure, isolated, and fast communication between Branch Offices (e.g., Branch A) and Head Office (Vcenter) without exposing internal private IP routes to the ISP Core routers.
@@ -223,18 +222,268 @@ sequenceDiagram
 ```
 
 
-#### 2. System Administration & High-Performance Computing
+### 2. System Administration & High-Performance Computing
 
-* **AI Infrastructure & Cloud GPU Provisioning**
+#### 2.1. AI Infrastructure & Cloud GPU Provisioning
+
 * **Use Case:** Architecting and managing hybrid computing environments for heavy AI/Deep Learning workloads, balancing local resources and cloud scalability.
-* **Experience & Solution:** Directly deployed and administered an on-premise AI server infrastructure featuring 4x NVIDIA A5000 GPUs. Implemented **vGPU** virtualization to optimize resource sharing.
+* **Experience & Solution:** Directly deployed and administered an on-premise AI server infrastructure featuring 4x NVIDIA A5000 GPUs. Implemented **vGPU** virtualization to optimize resource sharing, allocating flexible GPU profiles to concurrent AI/Deep Learning workloads.
+
+##### Hybrid GPU Infrastructure & vGPU Virtualization Diagram
+
+```mermaid
+graph TD
+    classDef client fill:#eceff1,stroke:#37474f,stroke-width:2px;
+    classDef hypervisor fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px;
+    classDef gpu fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef vm fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef cloud fill:#fff8e1,stroke:#ff8f00,stroke-width:2px;
+    classDef orchestrator fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px;
+
+    Users([AI Researchers & Developers]):::client
+    
+    Orchestrator["Hybrid Job Scheduler / Orchestrator<br/>(Slurm / Kubernetes / Run:AI)"]:::orchestrator
+
+    subgraph OnPrem ["On-Premise AI Server (Local Compute)"]
+        ServerHardware["Physical Dell/HPE Server<br/>(Dual Intel Xeon/AMD EPYC, 512GB RAM)"]
+        
+        subgraph GPU_Pool ["NVIDIA A5000 GPU Pool (4x A5000 24GB)"]
+            GPU1["Physical GPU 1<br/>(24GB GDDR6)"]:::gpu
+            GPU2["Physical GPU 2<br/>(24GB GDDR6)"]:::gpu
+            GPU3["Physical GPU 3<br/>(24GB GDDR6)"]:::gpu
+            GPU4["Physical GPU 4<br/>(24GB GDDR6)"]:::gpu
+        end
+
+        vGPUMgr["NVIDIA vGPU Software / Hypervisor<br/>(ESXi / KVM / Proxmox + vGPU Manager)"]:::hypervisor
+
+        subgraph VirtualWorkloads ["vGPU Virtual Machine Workloads"]
+            VM1["VM 1: Large LLM Training<br/>Profile: A5000-24Q (1 Full GPU)"]:::vm
+            VM2["VM 2: Dev / Jupyter Notebooks<br/>Profile: A5000-8Q (1/3 GPU)"]:::vm
+            VM3["VM 3: Vision Model Inference<br/>Profile: A5000-12Q (1/2 GPU)"]:::vm
+            VM4["VM 4: NLP Pipeline Training<br/>Profile: A5000-16Q (2/3 GPU)"]:::vm
+        end
+    end
+
+    subgraph CloudGPU ["Cloud GPU Provisioning (Scalability Burst)"]
+        CloudScale["Auto-Scaler Gateway"]
+        
+        subgraph CloudProviders ["On-Demand Cloud GPU Instances"]
+            AWS_GPU["AWS EC2 GPU Instance<br/>(NVIDIA A10G / H100)"]:::cloud
+            GCP_GPU["GCP Compute Engine GPU<br/>(NVIDIA L4 / A100)"]:::cloud
+        end
+    end
+
+    %% Connections
+    Users -->|1. Submit Training Jobs / Jupyter Sessions| Orchestrator
+    
+    %% Local Path
+    Orchestrator -->|2a. Schedule to Local Cluster| VirtualWorkloads
+    
+    %% Hardware Layer Map
+    GPU_Pool --- vGPUMgr
+    vGPUMgr -.->|Allocate Virtual GPU Profiles| VirtualWorkloads
+    ServerHardware --- GPU_Pool
+
+    %% Cloud Path
+    Orchestrator -->|2b. Local Resources Exhausted<br/>Trigger Cloud Bursting| CloudScale
+    CloudScale -->|3. Dynamically Provision Instance| CloudProviders
+    
+    class ServerHardware,GPU_Pool,vGPUMgr,VirtualWorkloads OnPrem;
+    class CloudScale,CloudProviders CloudGPU;
+```
+
+---
+
+#### 2.2. Enterprise Application Lifecycle & CI/CD Automation
 
 
-* **Enterprise Application Lifecycle & CI/CD Automation**
 * **Use Case:** End-to-end development, automation, and release management of enterprise applications with strict security and platform compliance.
 * **Experience & Solution:** Built cross-platform UIs using **Flutter** and developed **Python** scripts for system task automation. Designed and maintained **GitLab CI/CD** pipelines to fully automate the build, test, infrastructure setup, and deployment processes, ensuring secure public releases and compliance with the latest Google Play APIs.
 
-#### 3. On-Demand Container Provisioning & Automated Edge Ingress Architecture
+#### GitLab CI/CD Pipeline Workflow Diagram
+
+```mermaid
+graph TD
+    classDef stage fill:#f5f5f5,stroke:#9e9e9e,stroke-width:2px,stroke-dasharray: 5 5;
+    classDef job fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef artifact fill:#ffebee,stroke:#c62828,stroke-width:1px;
+    classDef external fill:#fffde7,stroke:#f57f17,stroke-width:1px;
+
+    subgraph Stage_CreateKey ["Stage 1: createkey"]
+        Job_CreateKey["Job: createkey<br/>(Alpine Image)"]:::job
+    end
+
+    subgraph Stage_Build ["Stage 2: build"]
+        Job_Build["Job: build<br/>(Flutter Image)"]:::job
+    end
+
+    subgraph Stage_Publish ["Stage 3: publish"]
+        Job_PublishPkg["Job: publish_packages<br/>(Curl Image)"]:::job
+        Job_DeployPlayStore["Job: deploy_to_chplay<br/>(Fastlane Image)"]:::job
+        Job_CreateRelease["Job: release<br/>(Release-cli Image)"]:::job
+    end
+
+    %% External Systems & Storage
+    GitLabRegistry[("GitLab Package Registry")]:::external
+    GooglePlay[("Google Play Console<br/>(Internal / Production)")]:::external
+
+    %% Artifacts & Files
+    SecureFiles["Secure Files Artifact<br/>(.secure_files/)"]:::artifact
+    AppBundle["App Bundle Artifact<br/>(app-release.aab)"]:::artifact
+
+    %% Execution Flow
+    Job_CreateKey -->|1. Output keys| SecureFiles
+    SecureFiles -->|2. Pull keys| Job_Build
+    
+    Job_Build -->|3. Compile Flutter release| AppBundle
+    
+    AppBundle -->|4. Pull bundle| Job_PublishPkg
+    AppBundle -->|4. Pull bundle| Job_DeployPlayStore
+    
+    Job_PublishPkg -->|5. Upload AAB via Curl| GitLabRegistry
+    Job_DeployPlayStore -->|5. Push AAB via Fastlane| GooglePlay
+    
+    Job_PublishPkg -->|6. Trigger on success| Job_CreateRelease
+    Job_DeployPlayStore -->|6. Trigger on success| Job_CreateRelease
+    
+    Job_CreateRelease -->|7. Link package registry AAB to Release| GitLabRegistry
+    
+    class Stage_CreateKey,Stage_Build,Stage_Publish stage;
+```
+
+#### GitLab CI/CD Pipeline Configuration (`.gitlab-ci.yml`)
+
+```yaml
+variables:
+  FLUTTERVER: 3.19.5
+
+stages:
+  - createkey
+  - build
+  - publish
+
+createkey:
+  stage: createkey
+  image: "alpine:latest"
+  before_script:
+    - echo "Install bash and curl"
+    - apk add --no-cache bash curl
+  variables:
+    GIT_STRATEGY: clone
+  script:
+    - chmod +x ./scripts/download-secure
+    - bash ./scripts/download-secure
+  tags:
+    - flutter-runner
+  only:
+    - tags
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - .secure_files/
+
+build:
+  stage: build
+  image: "instrumentisto/flutter:${FLUTTERVER}"
+  needs:
+    - createkey
+  variables:
+    GIT_STRATEGY: clone
+  before_script:
+    - flutter pub global activate rps
+    - export PATH="$PATH":"$HOME/.pub-cache/bin"
+  script:
+    - rps reset
+    - rps generate all
+    - cp .secure_files/* ./android/app/
+    - echo "storeFile=./upload-keystore.jks" >> android/key.properties
+    - echo "storePassword=${passwordKeyandStore}" >> android/key.properties
+    - echo "keyPassword=${passwordKeyandStore}" >> android/key.properties
+    - echo "keyAlias=${keyAlias}" >> android/key.properties
+    - "APP_VERSION=$(grep -o 'version: [0-9]\\+\\.[0-9]\\+\\.[0-9]\\+' pubspec.yaml | awk '{print $2}')"
+    - BUILD_NUMBER=$(TZ=UTC date -d "$CI_JOB_STARTED_AT" "+%Y%m%d%M")
+    - flutter build appbundle --build-name=${APP_VERSION} --build-number=${BUILD_NUMBER} --release
+  artifacts:
+    expire_in: 1 hour
+    paths:
+      - build/app/outputs/bundle/release/app-release.aab
+  dependencies:
+    - createkey
+  tags:
+    - flutter-runner
+  only:
+    - tags
+
+publish_packages:
+  stage: publish
+  needs: 
+    - build
+  image: curlimages/curl:latest
+  dependencies: 
+    - build
+  script:
+      - cp -r build/app/outputs/bundle/release ./
+      - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file ./release/app-release.aab "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/drift-survivors/${CI_COMMIT_TAG}/app-release.aab"'
+  only:
+    - tags
+  tags:
+    - flutter-runner
+
+deploy_to_chplay:
+  stage: publish
+  image: cijumbo/fastlane:2.220.0
+  variables:
+    GIT_STRATEGY: clone
+  dependencies:
+    - build
+  needs: 
+    - build
+  before_script:
+    - cp -r build/app/outputs/bundle/release ./
+    - apt install -y curl bash
+    - chmod +x ./scripts/download-secure
+    - bash ./scripts/download-secure
+    - cp ./.secure_files/google_play_service_account.json ./google_play_api_key.json  
+    - bundle update fastlane
+  script: 
+    - "APP_VERSION=$(grep -o 'version: [0-9]\\+\\.[0-9]\\+\\.[0-9]\\+' pubspec.yaml | awk '{print $2}')"
+    - bundle exec fastlane supply --track internal --aab  ./release/app-release.aab --json_key ./google_play_api_key.json --package_name ${Packages_name}
+    - bundle exec fastlane supply --track internal --track_promote_to production --changes_not_sent_for_review false  --json_key ./google_play_api_key.json  --package_name ${Packages_name}
+  after_script:
+    - rm ./google_play_api_key.json
+  tags:
+    - flutter-runner
+  only:
+    - tags
+
+release:
+  stage: publish
+  needs: 
+    - publish_packages
+    - deploy_to_chplay
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  before_script:
+    - apk add git
+  script:
+    - echo "Creating release $CI_COMMIT_TAG..."
+  release:
+    tag_name: $CI_COMMIT_TAG
+    description: |
+      Changes:
+      $(git log $(git describe --abbrev=0 --tags --exclude=$CI_COMMIT_TAG).$CI_COMMIT_TAG --oneline --no-decorate --reverse | sed "s/^[^ ]* /- /g")
+    assets:
+      links:
+        - name: AAB
+          url: ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/drift-survivors/${CI_COMMIT_TAG}/app-release.aab
+          link_type: package
+  only:
+    - tags
+  tags:
+    - flutter-runner
+
+---
+
+### 3. On-Demand Container Provisioning & Automated Edge Ingress Architecture
 
 * **Dynamic Container Micro-Orchestration & Auto-SSL Mapping System**
   * **Use Case:** Scaling independent, isolated worker/service container instances on-demand while automating Layer 7 routing, subdomain mapping, and TLS certificate generation for multi-tenant applications.
