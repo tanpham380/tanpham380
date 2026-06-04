@@ -233,3 +233,88 @@ sequenceDiagram
 * **Enterprise Application Lifecycle & CI/CD Automation**
 * **Use Case:** End-to-end development, automation, and release management of enterprise applications with strict security and platform compliance.
 * **Experience & Solution:** Built cross-platform UIs using **Flutter** and developed **Python** scripts for system task automation. Designed and maintained **GitLab CI/CD** pipelines to fully automate the build, test, infrastructure setup, and deployment processes, ensuring secure public releases and compliance with the latest Google Play APIs.
+
+#### 3. On-Demand Container Provisioning & Automated Edge Ingress Architecture
+
+* **Dynamic Container Micro-Orchestration & Auto-SSL Mapping System**
+  * **Use Case:** Scaling independent, isolated worker/service container instances on-demand while automating Layer 7 routing, subdomain mapping, and TLS certificate generation for multi-tenant applications.
+  * **Experience & Solution:** Designed and implemented an infrastructure automation system leveraging a Python Flask API gateway, Redis state caching, Portainer API orchestration, and Traefik edge reverse proxy. When a client authenticates via a dynamic interactive session flow, the gateway extracts session tokens and updates the central Docker Compose stack dynamically using the Portainer API to spin up a dedicated application container. Traefik automatically detects the new container's labels via the Docker provider, maps a unique subdomain, and provisions an SSL certificate via Let's Encrypt.
+
+##### System Architecture & Workflow Diagram
+
+```mermaid
+graph TD
+    classDef client fill:#eceff1,stroke:#37474f,stroke-width:2px;
+    classDef server fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+    classDef cache fill:#ffebee,stroke:#c62828,stroke-width:2px;
+    classDef docker fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef proxy fill:#efebe9,stroke:#4e342e,stroke-width:2px;
+    classDef ext fill:#fffde7,stroke:#f57f17,stroke-width:2px;
+
+    User([User / Client Browser]):::client
+    API[API Gateway / Flask]:::server
+    Redis[(Redis Cache / Session Store)]:::cache
+    Portainer[Portainer Server]:::docker
+    DockerEngine[Docker Engine / Compose Stack]:::docker
+    WorkerContainer[Isolated Worker Container]:::docker
+    Traefik[Traefik Edge Proxy]:::proxy
+    LetsEncrypt[Let's Encrypt CA]:::ext
+    AuthProvider[External Auth / Remote Gateway]:::ext
+
+    %% Flow 1: Authentication
+    User -->|1. Request Login Session| API
+    API -->|2. Cache Session State & Agent metadata| Redis
+    API -->|3. Establish connection & retrieve auth context| AuthProvider
+    User -->|4. Poll Verification Status| API
+    User -->|5. Out-of-band Verification / Confirmation| AuthProvider
+    API -->|6. Retrieve verified session credentials| AuthProvider
+    
+    %% Flow 2: Provisioning
+    User -->|7. Submit Provision Request| API
+    API -->|8. Fetch & Update Compose Stack| Portainer
+    Portainer -->|9. Inject Environment & Recreate Stack| DockerEngine
+    DockerEngine -->|10. Deploy Dynamic Worker Service| WorkerContainer
+    
+    %% Flow 3: Routing & SSL
+    Traefik -.->|11. Monitor Docker socket events| DockerEngine
+    Traefik -.->|12. Auto-discover router rules via labels| WorkerContainer
+    Traefik -->|13. Perform ACME challenge & fetch TLS cert| LetsEncrypt
+    User -->|14. Access isolated worker via HTTPS Subdomain| Traefik
+    Traefik -->|15. Reverse Proxy Traffic| WorkerContainer
+```
+
+##### Core Technological Components
+
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **API Gateway & Logic** | **Python Flask (asyncio, PyYAML)** | Handles dynamic session management, parses Docker Compose configurations, and integrates with the orchestrator API. |
+| **State Storage & Cache**| **Redis** | Caches session tokens, active execution locks, and temporary verification states to prevent request collision. |
+| **Orchestration Client** | **Portainer API** | Automates stack updates (`docker-compose.yml`) programmatically to provision, update, or decommission Docker services. |
+| **Edge Ingress Proxy** | **Traefik (Docker Provider)** | Dynamically registers routing paths, binds subdomains, handles SSL challenge via Let's Encrypt (HTTP/DNS challenge), and manages client traffic. |
+| **Worker Environment** | **Docker Container** | An isolated workspace instance running on-demand microservices for a specific authenticated user. |
+
+##### Core API Endpoints
+
+1. **System & Health Diagnostics**
+   * **`GET /api/v1/self/health`**: Simple gateway health check.
+   * **`GET /api/v1/self/check-logic`**: Real-time diagnostic suite testing active dependency modules, configuration schemas, Redis cache, and Portainer orchestration availability.
+
+2. **Session Verification & Auth Lifecycle**
+   * **`GET /api/v1/self/login`**: Initializes a background verification thread with dynamic client agent metadata.
+   * **`GET /api/v1/self/login/get-qr-status`**: Polls the status of the verification session. Returns verification token and extracted session credentials upon successful user approval.
+
+3. **Instance Provisioning**
+   * **`POST /api/v1/self/login/create-new-account`**: Deploys an isolated worker container instance by dynamically updating the stack config via the Portainer API, injecting authentication state as environment variables.
+   * **`DELETE /api/v1/self/login/delete-account`**: De-provisions the isolated instance, removes its configuration block from the stack definition, and halts the container.
+
+##### Automated Routing via Traefik Labels
+When the API provisions a new container, the following configuration metadata labels are dynamically injected into the compose service block, prompting Traefik to register the ingress route and request SSL certificates:
+```yaml
+labels:
+  - "traefik.enable=true"
+  - "traefik.http.services.service-${service_id}.loadbalancer.server.port=5001"
+  - "traefik.http.routers.service-${service_id}-https.rule=Host(`service-${service_id}.domain.com`)"
+  - "traefik.http.routers.service-${service_id}-https.entrypoints=websecure"
+  - "traefik.http.routers.service-${service_id}-https.tls=true"
+  - "traefik.http.routers.service-${service_id}-https.tls.certresolver=letsencrypt"
+```
