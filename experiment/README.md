@@ -577,3 +577,128 @@ services:
       - "traefik.http.routers.service-${service_id}-https.tls=true"
       - "traefik.http.routers.service-${service_id}-https.tls.certresolver=letsencrypt"
 ```
+
+### 4. Enterprise VoIP & Call Center Infrastructure
+
+* **Use Case:** Architecting, deploying, and managing a high-capacity, multi-tenant Call Center system to handle massive inbound/outbound call volumes for multiple corporate branches and educational academies.
+* **Experience & Solution:** Designed a centralized VoIP architecture leveraging **FreeSWITCH / FusionPBX**. Successfully integrated multiple SIP Trunks (Tier-1 ISPs / Telecom Providers) over dedicated IP proxies utilizing distinct internal and external SIP profiles. 
+  * **Unified SSL & WebRTC:** Solved secure communication challenges by unifying SSL certificate configurations across both External/Internal profiles, enabling seamless secure SIP (TLS on port 5081/5061) and WSS (WebRTC on port 7443) for over 180+ remote and local agents.
+  * **Advanced Routing:** Implemented dynamic Layers of Time Conditions (handling Business Hours vs. Holidays) cascading into centralized IVR menus (`IVR_Hotline`), which then distribute traffic to 20+ specific Call Center Queues (utilizing strategies like `Agent With Fewest Calls`, `longest-idle-agent`, and `round-robin`). 
+  * **Custom Dialplan Logic:** Programmed custom XML dialplans and injected Lua scripts (`reset_answered_time.lua`) to manipulate outbound Caller IDs (e.g., dynamically presenting specific Virtual Phones depending on the outbound route) and track accurate billing durations.
+
+#### System Architecture & Call Flow Diagram
+
+```mermaid
+graph TD
+    classDef pstn fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef gateway fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef pbx fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px;
+    classDef logic fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px;
+    classDef queue fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef agents fill:#ffebee,stroke:#c62828,stroke-width:2px;
+
+    Customers((Customers / End-users)):::pstn
+
+    subgraph SIP_Providers ["Telecommunication Providers (SIP Trunks)"]
+        ProviderA["Primary SIP Provider<br/>(IP: 10.X.X.X)"]:::gateway
+        OtherISP["Secondary SIP Providers<br/>(Provider B, C, etc.)"]:::gateway
+    end
+
+    subgraph FreeSWITCH ["FreeSWITCH / FusionPBX Core"]
+        
+        subgraph SIP_Profiles ["SIP Profiles (Network Layer)"]
+            ExtProfile["External Profile<br/>(Port: 5080 / TLS: 5081)<br/>Listens to Providers"]:::pbx
+            IntProfile["Internal Profile<br/>(Port: 5060 / WSS: 7443)<br/>Listens to Endpoints"]:::pbx
+            
+            UnifiedSSL(("Unified SSL/TLS<br/>Let's Encrypt Certs<br/>(WSS & SIP-TLS)"))
+            ExtProfile -.-> UnifiedSSL
+            IntProfile -.-> UnifiedSSL
+        end
+
+        subgraph Call_Routing ["Dialplan & Routing Logic"]
+            InboundRoutes["Inbound Routes<br/>(Matches 1800-XXX / 1900-XXX)"]:::logic
+            TimeConditions{"Time Conditions<br/>(Business Hours vs Holiday)"}:::logic
+            IVR["Main IVR<br/>(Ext: 999901 - IVR_Hotline)"]:::logic
+            
+            LUA["LUA Scripts<br/>(reset_answered_time.lua)"]:::logic
+            OutboundRoutes["Outbound XML Dialplan<br/>(Dynamic Caller ID Injection)"]:::logic
+        end
+
+        subgraph Call_Queues ["ACD / Call Center Queues (20+ Queues)"]
+            Q_MAIN["Queue: Main_Campaign<br/>(Ext: 888)<br/>Strategy: Agent With Fewest Calls"]:::queue
+            Q_BRAND_B["Queue: Brand_B_Project<br/>(Ext: 103)<br/>Strategy: Sequentially"]:::queue
+            Q_IT["Ring Group: IT Support<br/>(Ext: 401)<br/>Strategy: Sequence"]:::queue
+        end
+    end
+
+    subgraph Endpoints ["Agent Endpoints (180+ Users)"]
+        WebRTC["WebRTC Interface<br/>(Browsers via WSS)"]:::agents
+        Softphone["Softphones (MicroSIP, Zoiper)<br/>(SIP/UDP/TLS)"]:::agents
+    end
+
+    %% --- INBOUND CALL FLOW ---
+    Customers -->|Dial 1800-XXX-XXX| ProviderA
+    ProviderA -->|SIP INVITE| ExtProfile
+    ExtProfile --> InboundRoutes
+    InboundRoutes --> TimeConditions
+    
+    TimeConditions -->|Business Hours| IVR
+    TimeConditions -->|After Hours / Holiday| VoiceMail((Voicemail/Alternate))
+    
+    IVR -->|Press 1| Q_MAIN
+    IVR -->|Press 2| Q_BRAND_B
+    IVR -->|Direct Dial| Q_IT
+    
+    Q_MAIN -->|Distribute Call| IntProfile
+    Q_BRAND_B -->|Distribute Call| IntProfile
+
+    IntProfile -->|Secure WSS Transport| WebRTC
+    IntProfile -->|Standard/TLS SIP| Softphone
+
+    %% --- OUTBOUND CALL FLOW ---
+    Softphone -->|Dial External Number| IntProfile
+    IntProfile --> OutboundRoutes
+    OutboundRoutes -->|Apply Account Code & Caller ID| LUA
+    LUA -->|Bridge Call| ExtProfile
+    ExtProfile -->|Route Outbound| ProviderA
+    ProviderA --> Customers
+```
+
+#### Core PBX Configurations
+
+| Component | Configuration / Technology | Description |
+| :--- | :--- | :--- |
+| **Core Engine** | **FreeSWITCH / FusionPBX** | High-performance, enterprise-grade SIP softswitch acting as the core PBX and ACD (Automatic Call Distributor). |
+| **SIP Profiles & SSL** | **TLS / WSS unification** | Configured `external` (handling provider NAT/ACLs) and `internal` (handling WebRTC clients over WSS `:7443`). Shared `$${external_ssl_dir}` variables ensure zero-mismatch during WebRTC key exchanges. |
+| **ACD Queues** | **`mod_callcenter`** | Orchestrates 180+ callback agents across 20 distinct queues. Uses complex tier rules and dynamic strategies (`longest-idle-agent`, `agent-with-fewest-calls`) to optimize SLA. |
+| **Time Conditions** | **Regex & Cron-based Evaluation** | Evaluates calls dynamically based on Day of Week and Time of Day (e.g., `8:00 AM ~ 8:00 PM`). Routes invalid/after-hours calls to distinct holiday announcements. |
+| **Custom Dialplans** | **XML & Lua Scripting** | Advanced regex matching for outbound routes (e.g., `^(\d{10,11})$`). Injects specific Caller IDs (e.g., `0111XXXXXX1` vs `0111XXXXXX2`) and forces recording via `record_session`. |
+
+#### Example: Outbound Dialplan with Lua Injection & Dynamic Caller ID
+
+```xml
+<extension name="PROVIDER-A-CALLCENTER" continue="false" uuid="1e97a789-a30c-4023-ba32-ab12bc71db48">
+    <condition field="${user_exists}" expression="false"/>
+    <condition field="destination_number" expression="^(\d{10,11})$">
+        <!-- Billing & Accounting variables -->
+        <action application="set" data="sip_h_X-accountcode=${accountcode}"/>
+        <action application="export" data="call_direction=outbound"/>
+        
+        <!-- Injecting Lua script to accurately capture Answered Time -->
+        <action application="export" data="execute_on_answer=lua reset_answered_time.lua ${uuid}"/>
+        
+        <action application="unset" data="call_timeout"/>
+        <action application="set" data="hangup_after_bridge=true"/>
+        
+        <!-- Dynamic Outbound Caller ID Mapping -->
+        <action application="set" data="effective_caller_id_name=${outbound_caller_id_name}"/>
+        <action application="set" data="effective_caller_id_number=0111XXXXXXX"/>
+        <action application="set" data="inherit_codec=true"/>
+        <action application="set" data="ignore_display_updates=true"/>
+        <action application="set" data="callee_id_number=$1"/>
+        
+        <!-- Bridge to SIP Gateway -->
+        <action application="bridge" data="sofia/gateway/provider-a-gateway-uuid/$1"/>
+    </condition>
+</extension>
+```
