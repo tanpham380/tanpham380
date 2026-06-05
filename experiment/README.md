@@ -676,9 +676,13 @@ graph TD
 *   **Challenge:** Managing routing logic for dozens of specific business campaigns without creating spaghetti XML code.
 *   **Implementation:** Abstracted hard-coded dialplans into FreeSWITCH **Global Variables**. Built a centralized, dynamic IVR system (`IVR_Hotline`) governed by multi-layered Time Conditions (distinguishing business hours from holidays via cron-based evaluation). For outbound traffic, injected custom **Lua scripts** (`reset_answered_time.lua`) directly into the dialplan to dynamically map specific Virtual Phone Numbers (Caller ID) based on the routed campaign, ensuring strict compliance with Telco SIP headers.
 
-**4. Deep Diagnostics & QoS Troubleshooting (CDR Analysis)**
-*   **Challenge:** Accurately identifying the root cause of voice quality degradation (e.g., one-way audio, robotic voices, or dropped calls) without blind guessing.
-*   **Implementation:** Developed a systematic troubleshooting framework utilizing **Call Detail Records (CDR)** and raw SIP traces (`fs_cli`). By deeply analyzing metrics such as `rtp_audio_in_mos` (Mean Opinion Score), `jitter_max_variance`, `skip_packet_count`, and exact **Q.850 cause codes** (e.g., differentiating between `16 NORMAL_CLEARING` and `38 NETWORK_OUT_OF_ORDER`), I can definitively isolate fault domains—proving whether an audio flaw originated from internal LAN packet loss or external Telco gateway degradation.
+**4. Deep Diagnostics, SIP Tracing & QoS Troubleshooting**
+*   **Challenge:** Accurately identifying the root cause of voice quality degradation (e.g., one-way audio, choppy voices) or call routing failures without blind guessing, and isolating issues between the internal IT network and the external Telco provider.
+*   **Implementation:** Developed a highly empirical troubleshooting framework utilizing **`sngrep`** (for visual, real-time SIP signaling analysis), `fs_cli`, and raw **Call Detail Records (CDR)**. 
+    *   **Tracing the Call Path:** I extract exact variables to paint the full picture of a call: Who initiated it (`caller_id_number`: `16802`), the target (`destination_number`: `0819460897`), the processing gateway/profile (`channel_name`: `sofia/internal/...`), the remote endpoint/telco IP (`sip_network_ip`: `172.18.X.X`), and the local handling interface (`local_media_ip`: `192.168.1.223`). 
+    *   **QoS Fault Isolation:** To pinpoint audio degradation, I analyze asymmetric RTP streams. For instance, detecting severe inbound degradation with metrics like `rtp_audio_in_mos: 2.26` (poor Mean Opinion Score), a high `skip_packet_count: 1113`, and massive `jitter_max_variance: 2689.55`, while confirming a flawless outbound stream (`rtp_audio_out_skip_packet_count: 0`). 
+    *   By cross-referencing endpoint hardware (`sip_user_agent: Grandstream GXP1610`) and exact protocol-level hangup causes (`sip_reason: Q.850;cause=16;text="NORMAL_CLEARING"` vs `cause=38 NETWORK_OUT_OF_ORDER`), I can definitively prove whether a flaw originated from local LAN packet loss, endpoint malfunction, or external Telco gateway degradation.
+
 
 **5. Cross-Functional Developer Integration (ESL)**
 *   **Challenge:** Enabling the in-house CRM development team to trigger screen-popups and sync agent states (Logged In, On Break, Busy) without them needing to understand SIP protocol intricacies.
