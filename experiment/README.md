@@ -578,127 +578,141 @@ services:
       - "traefik.http.routers.service-${service_id}-https.tls.certresolver=letsencrypt"
 ```
 
-### 4. Enterprise VoIP & Call Center Infrastructure
+### 4. Enterprise VoIP & Advanced Call Center Infrastructure
 
-* **Use Case:** Architecting, deploying, and managing a high-capacity, multi-tenant Call Center system to handle massive inbound/outbound call volumes for multiple corporate branches and educational academies.
-* **Experience & Solution:** Designed a centralized VoIP architecture leveraging **FreeSWITCH / FusionPBX**. Successfully integrated multiple SIP Trunks (Tier-1 ISPs / Telecom Providers) over dedicated IP proxies utilizing distinct internal and external SIP profiles. 
-  * **Unified SSL & WebRTC:** Solved secure communication challenges by unifying SSL certificate configurations across both External/Internal profiles, enabling seamless secure SIP (TLS on port 5081/5061) and WSS (WebRTC on port 7443) for over 180+ remote and local agents.
-  * **Advanced Routing:** Implemented dynamic Layers of Time Conditions (handling Business Hours vs. Holidays) cascading into centralized IVR menus (`IVR_Hotline`), which then distribute traffic to 20+ specific Call Center Queues (utilizing strategies like `Agent With Fewest Calls`, `longest-idle-agent`, and `round-robin`). 
-  * **Custom Dialplan Logic:** Programmed custom XML dialplans and injected Lua scripts (`reset_answered_time.lua`) to manipulate outbound Caller IDs (e.g., dynamically presenting specific Virtual Phones depending on the outbound route) and track accurate billing durations.
+* **Use Case:** Architecting, securing, and operating a high-capacity, multi-tenant Call Center infrastructure capable of processing massive concurrent inbound/outbound calls for various enterprise branches and educational institutions.
+* **Architecture Strategy:** Adopted a deeply systematic approach covering all layers—from Debian OS network routing and perimeter security to FreeSWITCH core processing, dynamic dialplan logic, and external CRM integration. The goal was to build a highly secure, observable, and developer-friendly VoIP ecosystem.
 
-#### System Architecture & Call Flow Diagram
+#### System Architecture & Core Integration Diagram
 
 ```mermaid
 graph TD
     classDef pstn fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
     classDef gateway fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef security fill:#ffcdd2,stroke:#c62828,stroke-width:2px;
     classDef pbx fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px;
     classDef logic fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px;
-    classDef queue fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef db fill:#b2dfdb,stroke:#00796b,stroke-width:2px;
     classDef agents fill:#ffebee,stroke:#c62828,stroke-width:2px;
 
-    Customers((Customers / End-users)):::pstn
+    Threats((Malicious Botnets /<br/>SIP Scanners)):::pstn
+    Customers((Customers /<br/>End-users)):::pstn
 
-    subgraph SIP_Providers ["Telecommunication Providers (SIP Trunks)"]
-        ProviderA["Primary SIP Provider<br/>(IP: 10.X.X.X)"]:::gateway
-        OtherISP["Secondary SIP Providers<br/>(Provider B, C, etc.)"]:::gateway
+    subgraph Edge_Network ["Edge Network & ISP Trunks"]
+        ProviderA["Tier-1 Telecom A<br/>(Primary SIP Trunk)"]:::gateway
+        ProviderB["Tier-1 Telecom B<br/>(Failover SIP Trunk)"]:::gateway
     end
 
-    subgraph FreeSWITCH ["FreeSWITCH / FusionPBX Core"]
+    subgraph OS_Security ["Debian OS Security & Network Layer"]
+        Firewall{"iptables / nftables<br/>+ Multi-table Routing"}:::security
+        Fail2ban["Fail2ban Jails<br/>(Dynamic SIP Ban)"]:::security
         
-        subgraph SIP_Profiles ["SIP Profiles (Network Layer)"]
-            ExtProfile["External Profile<br/>(Port: 5080 / TLS: 5081)<br/>Listens to Providers"]:::pbx
-            IntProfile["Internal Profile<br/>(Port: 5060 / WSS: 7443)<br/>Listens to Endpoints"]:::pbx
+        Threats -.->|SIP Brute Force / Toll Fraud| Firewall
+        Fail2ban -->|Parses freeswitch.log<br/>Injects Drop Rules| Firewall
+        
+        subgraph Core_Switch ["FreeSWITCH / FusionPBX Core"]
+            ExtProfile["External Profile (Port 5080/5081)<br/>Strict Provider ACL"]:::pbx
+            IntProfile["Internal Profile (Port 5060/7443)<br/>Endpoint & WebRTC ACL"]:::pbx
+            UnifiedSSL(("Unified Let's Encrypt<br/>SSL/TLS Certs")):::logic
             
-            UnifiedSSL(("Unified SSL/TLS<br/>Let's Encrypt Certs<br/>(WSS & SIP-TLS)"))
-            ExtProfile -.-> UnifiedSSL
-            IntProfile -.-> UnifiedSSL
-        end
-
-        subgraph Call_Routing ["Dialplan & Routing Logic"]
-            InboundRoutes["Inbound Routes<br/>(Matches 1800-XXX / 1900-XXX)"]:::logic
-            TimeConditions{"Time Conditions<br/>(Business Hours vs Holiday)"}:::logic
-            IVR["Main IVR<br/>(Ext: 999901 - IVR_Hotline)"]:::logic
+            subgraph Routing_Engine ["Dialplan & Logic Engine"]
+                GlobalIVR["Centralized IVR<br/>(Powered by Global Vars)"]:::logic
+                CustomDialplan["XML Dialplan & LUA<br/>(Dynamic CID & Logic)"]:::logic
+            end
             
-            LUA["LUA Scripts<br/>(reset_answered_time.lua)"]:::logic
-            OutboundRoutes["Outbound XML Dialplan<br/>(Dynamic Caller ID Injection)"]:::logic
+            subgraph ACD_Queues ["mod_callcenter (180+ Agents)"]
+                QueueLogic["Tier Rules & Strategies<br/>(Fewest Calls, Round-Robin)"]:::pbx
+            end
         end
-
-        subgraph Call_Queues ["ACD / Call Center Queues (20+ Queues)"]
-            Q_MAIN["Queue: Main_Campaign<br/>(Ext: 888)<br/>Strategy: Agent With Fewest Calls"]:::queue
-            Q_BRAND_B["Queue: Brand_B_Project<br/>(Ext: 103)<br/>Strategy: Sequentially"]:::queue
-            Q_IT["Ring Group: IT Support<br/>(Ext: 401)<br/>Strategy: Sequence"]:::queue
+        
+        subgraph Observability ["Data & Observability"]
+            CDR["CDR Parsing Engine<br/>(QoS, MOS, Q.850)"]:::db
+            Database[("PostgreSQL<br/>(State & Configs)")]:::db
+            ESL["Event Socket Layer<br/>(Port: 8021)"]:::db
         end
     end
 
-    subgraph Endpoints ["Agent Endpoints (180+ Users)"]
-        WebRTC["WebRTC Interface<br/>(Browsers via WSS)"]:::agents
-        Softphone["Softphones (MicroSIP, Zoiper)<br/>(SIP/UDP/TLS)"]:::agents
+    subgraph Endpoint_Dev ["Endpoints & Dev Integration"]
+        DevCRM["In-house CRM App<br/>(Listens to ESL for Call Popups)"]:::agents
+        WebRTC["WebRTC UI<br/>(Browsers via WSS)"]:::agents
+        Softphone["Softphones<br/>(SIP/TLS)"]:::agents
     end
 
-    %% --- INBOUND CALL FLOW ---
-    Customers -->|Dial 1800-XXX-XXX| ProviderA
-    ProviderA -->|SIP INVITE| ExtProfile
-    ExtProfile --> InboundRoutes
-    InboundRoutes --> TimeConditions
+    %% Network Flow
+    ProviderA <-->|Authorized SIP/RTP| Firewall
+    ProviderB <-->|Authorized SIP/RTP| Firewall
+    Firewall <--> ExtProfile
     
-    TimeConditions -->|Business Hours| IVR
-    TimeConditions -->|After Hours / Holiday| VoiceMail((Voicemail/Alternate))
+    %% Core Connections
+    ExtProfile -.-> UnifiedSSL
+    IntProfile -.-> UnifiedSSL
+    ExtProfile <--> CustomDialplan
+    CustomDialplan --> GlobalIVR
+    GlobalIVR --> QueueLogic
+    QueueLogic <--> IntProfile
     
-    IVR -->|Press 1| Q_MAIN
-    IVR -->|Press 2| Q_BRAND_B
-    IVR -->|Direct Dial| Q_IT
+    IntProfile <--> Softphone
+    IntProfile <--> WebRTC
     
-    Q_MAIN -->|Distribute Call| IntProfile
-    Q_BRAND_B -->|Distribute Call| IntProfile
-
-    IntProfile -->|Secure WSS Transport| WebRTC
-    IntProfile -->|Standard/TLS SIP| Softphone
-
-    %% --- OUTBOUND CALL FLOW ---
-    Softphone -->|Dial External Number| IntProfile
-    IntProfile --> OutboundRoutes
-    OutboundRoutes -->|Apply Account Code & Caller ID| LUA
-    LUA -->|Bridge Call| ExtProfile
-    ExtProfile -->|Route Outbound| ProviderA
-    ProviderA --> Customers
+    %% Dev and Monitoring Flow
+    Core_Switch -->|Write Call Stats| CDR
+    CDR --> Database
+    Core_Switch <--> ESL
+    ESL <-->|Real-time Agent Status| DevCRM
+    Database <-->|Historical Sync| DevCRM
 ```
 
-#### Core PBX Configurations
+#### Key Engineering Implementations & Systematic Problem Solving
 
-| Component | Configuration / Technology | Description |
-| :--- | :--- | :--- |
-| **Core Engine** | **FreeSWITCH / FusionPBX** | High-performance, enterprise-grade SIP softswitch acting as the core PBX and ACD (Automatic Call Distributor). |
-| **SIP Profiles & SSL** | **TLS / WSS unification** | Configured `external` (handling provider NAT/ACLs) and `internal` (handling WebRTC clients over WSS `:7443`). Shared `$${external_ssl_dir}` variables ensure zero-mismatch during WebRTC key exchanges. |
-| **ACD Queues** | **`mod_callcenter`** | Orchestrates 180+ callback agents across 20 distinct queues. Uses complex tier rules and dynamic strategies (`longest-idle-agent`, `agent-with-fewest-calls`) to optimize SLA. |
-| **Time Conditions** | **Regex & Cron-based Evaluation** | Evaluates calls dynamically based on Day of Week and Time of Day (e.g., `8:00 AM ~ 8:00 PM`). Routes invalid/after-hours calls to distinct holiday announcements. |
-| **Custom Dialplans** | **XML & Lua Scripting** | Advanced regex matching for outbound routes (e.g., `^(\d{10,11})$`). Injects specific Caller IDs (e.g., `0111XXXXXX1` vs `0111XXXXXX2`) and forces recording via `record_session`. |
+**1. OS-Level Security & Network Topology (Debian Linux)**
+*   **Challenge:** Managing distinct subnets for external SIP providers while protecting the PBX from aggressive SIP brute-force and toll-fraud attacks.
+*   **Implementation:** Engineered multi-table routing on Debian to strictly isolate Telco VoIP traffic from public internet traffic. Implemented robust perimeter defense using **Fail2ban** integrated with `iptables/nftables`. By writing custom regex filters to parse `/var/log/freeswitch/freeswitch.log`, the system dynamically detects and drops malicious IPs exhibiting anomalous registration attempts or scanning behaviors, drastically reducing CPU overhead and securing the ACLs.
 
-#### Example: Outbound Dialplan with Lua Injection & Dynamic Caller ID
+**2. Unified Secure Transport (WebRTC & SIP-TLS)**
+*   **Challenge:** Browsers strictly block WebRTC (WSS) without valid SSL, and softphones require secure SIP-TLS, often leading to certificate mismatch errors across different FreeSWITCH profiles.
+*   **Implementation:** Systematized the SSL deployment pipeline. Unified Let's Encrypt certificate directories across both the **Internal Profile** (handling WebRTC over WSS on port `7443`) and the **External Profile** (handling SIP-TLS on port `5081`). This unified approach guaranteed zero-mismatch errors during key exchanges, ensuring pristine audio and signaling security for 180+ remote agents.
+
+**3. Advanced Dialplan Engineering & IVR Abstraction**
+*   **Challenge:** Managing routing logic for dozens of specific business campaigns without creating spaghetti XML code.
+*   **Implementation:** Abstracted hard-coded dialplans into FreeSWITCH **Global Variables**. Built a centralized, dynamic IVR system (`IVR_Hotline`) governed by multi-layered Time Conditions (distinguishing business hours from holidays via cron-based evaluation). For outbound traffic, injected custom **Lua scripts** (`reset_answered_time.lua`) directly into the dialplan to dynamically map specific Virtual Phone Numbers (Caller ID) based on the routed campaign, ensuring strict compliance with Telco SIP headers.
+
+**4. Deep Diagnostics & QoS Troubleshooting (CDR Analysis)**
+*   **Challenge:** Accurately identifying the root cause of voice quality degradation (e.g., one-way audio, robotic voices, or dropped calls) without blind guessing.
+*   **Implementation:** Developed a systematic troubleshooting framework utilizing **Call Detail Records (CDR)** and raw SIP traces (`fs_cli`). By deeply analyzing metrics such as `rtp_audio_in_mos` (Mean Opinion Score), `jitter_max_variance`, `skip_packet_count`, and exact **Q.850 cause codes** (e.g., differentiating between `16 NORMAL_CLEARING` and `38 NETWORK_OUT_OF_ORDER`), I can definitively isolate fault domains—proving whether an audio flaw originated from internal LAN packet loss or external Telco gateway degradation.
+
+**5. Cross-Functional Developer Integration (ESL)**
+*   **Challenge:** Enabling the in-house CRM development team to trigger screen-popups and sync agent states (Logged In, On Break, Busy) without them needing to understand SIP protocol intricacies.
+*   **Implementation:** Bridged the gap between telecom infrastructure and software development by exposing FreeSWITCH's **Event Socket Layer (ESL)** and backend PostgreSQL database. This allowed developers to seamlessly subscribe to real-time telephony events via APIs, orchestrating automatic customer data popups on inbound calls and tracking accurate billing durations.
+
+#### Technical Snippet: Systematic Dialplan Lua Injection & QoS Tracking
 
 ```xml
-<extension name="PROVIDER-A-CALLCENTER" continue="false" uuid="1e97a789-a30c-4023-ba32-ab12bc71db48">
+<!-- Example: Advanced Outbound Dialplan with Lua Injection and Quality Tracking -->
+<extension name="ENTERPRISE-OUTBOUND-ROUTING" continue="false" uuid="1e97a789-a30c-4023-ba32-ab12bc71db48">
     <condition field="${user_exists}" expression="false"/>
     <condition field="destination_number" expression="^(\d{10,11})$">
-        <!-- Billing & Accounting variables -->
+        
+        <!-- 1. Dev/CRM Integration: Exporting UUID and Account Codes -->
         <action application="set" data="sip_h_X-accountcode=${accountcode}"/>
         <action application="export" data="call_direction=outbound"/>
+        <action application="export" data="sip_h_X-Call_UUID=${uuid}"/>
         
-        <!-- Injecting Lua script to accurately capture Answered Time -->
+        <!-- 2. Lua Script Injection: Synchronize exact answer time for CRM billing -->
         <action application="export" data="execute_on_answer=lua reset_answered_time.lua ${uuid}"/>
         
+        <!-- 3. QoS Preparation & Dynamic CID Mapping -->
+        <action application="set" data="rtp_jitter_buffer=true"/>
         <action application="unset" data="call_timeout"/>
         <action application="set" data="hangup_after_bridge=true"/>
         
-        <!-- Dynamic Outbound Caller ID Mapping -->
+        <!-- Injecting Masked/Dynamic Outbound Caller ID -->
         <action application="set" data="effective_caller_id_name=${outbound_caller_id_name}"/>
-        <action application="set" data="effective_caller_id_number=0111XXXXXXX"/>
+        <action application="set" data="effective_caller_id_number=$${global_outbound_caller_id}"/>
         <action application="set" data="inherit_codec=true"/>
-        <action application="set" data="ignore_display_updates=true"/>
         <action application="set" data="callee_id_number=$1"/>
         
-        <!-- Bridge to SIP Gateway -->
-        <action application="bridge" data="sofia/gateway/provider-a-gateway-uuid/$1"/>
+        <!-- 4. Bridge to Tier-1 Provider SIP Gateway -->
+        <action application="bridge" data="sofia/gateway/provider-primary-gateway-uuid/$1"/>
     </condition>
 </extension>
 ```
