@@ -2,141 +2,107 @@
 
 This repository serves as a technical sandbox for researching, documenting, and implementing advanced solutions in Network infrastructure, System automation, and On-premise services.
 
+---
+
 ### 1. Network Infrastructure
 
-* **MPLS L3VPN Data Forwarding (Branch to HO):**
-* *Use Case:* Ensuring secure, isolated, and fast communication between Branch Offices (e.g., Branch A) and Head Office (Vcenter) without exposing internal private IP routes to the ISP Core routers.
-* *Problem/Scenario:* A User PC in Branch A (VLAN 16) wants to access a Virtual Machine (VM) hosted on the Vcenter at Head Office. How does the packet traverse the complex ISP MPLS network without traditional IP routing lookups at every hop?
-* *Diagram:*
+#### 1.1. MPLS & Hybrid Layer 3/MPLS Data Forwarding
 
+##### Use Case
+Ensuring secure, isolated, and fast communication between Branch Offices and the Head Office (HO) Core/vCenter utilizing dual WAN transport routes (Provider A and Provider B) with distinct forwarding architectures.
+
+##### Problem / Scenario & Solution
+**Problem:** Remote branch workstations need to access Virtual Machines (VMs) on the vCenter cluster at the Head Office. The setup must offer network redundancy and separate administrative management traffic from generic data subnets using dual WAN providers with non-identical network designs.
+**Solution:** Engineered a hybrid forwarding topology across dual ISPs. Provider A acts as a standard MPLS L3VPN for primary data routing. Provider B implements a hybrid structure: Layer 3 routing over a WAN subnet (gateway `10.90.97.249`) to forward generic data subnets, combined with an MPLS L2VPN tunnel (next-hop `192.168.1.10`) to carry untagged management frames and DHCP traffic. Configured Cisco Core switches with subinterfaces, specific static routes, and L2 port mappings to isolate and balance traffic.
+
+##### Architecture Diagram
 ```mermaid
 graph TD
-    %% System color definitions
-    classDef isp fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
-    classDef fw fill:#ffcdd2,stroke:#c62828,stroke-width:2px;
-    classDef core fill:#b3e5fc,stroke:#0277bd,stroke-width:2px;
-    classDef providerA fill:#f0f4c3,stroke:#827717,stroke-width:1px;
-    classDef providerB fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
+    %% Styling Definitions
+    classDef hoCore fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef firewall fill:#ffebee,stroke:#c62828,stroke-width:2px;
+    classDef servers fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px;
+    classDef wanA fill:#fff9c4,stroke:#fbc02d,stroke-width:1px;
+    classDef wanB fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
+    classDef branch fill:#efebe9,stroke:#4e342e,stroke-width:1px;
 
-    %% WAN ISP Providers
-    subgraph ISPs ["WAN ISP Providers to Firewall"]
-        ISP_A((Provider A WAN))
-        ISP_B((Provider B WAN))
-        ISP_C((Provider C WAN))
+    %% HEAD OFFICE (HO)
+    subgraph HO ["Head Office (HO) Core Cluster"]
+        FW["Sophos/FortiGate Firewall - LAN IP: 192.168.10.10"]:::firewall
+        CoreHO["HO Core Switch 3650 (VLAN 2 and L3 Routed Ports)"]:::hoCore
+        Vcenter["vCenter / VM Cluster (Production Servers)"]:::servers
+        DHCP_HO["DHCP Server (Branch IP Pools)"]:::servers
     end
 
-    %% HEAD OFFICE
-    subgraph HO ["Head Office - Enterprise Cluster"]
-        FW["Firewall (Sophos / FortiGate)<br/>LAN IP: 192.168.10.10<br/>Security gateway to WAN"]
-        
-        CoreHO["Core Switch 3650<br/>Routing IP: 192.168.10.20<br/>(Routing enabled for internal traffic)"]
-        
-        BranchCore["Branch Core Switch<br/>IP: 192.168.1.10<br/>Handles branch VLAN routing"]
-        
-        Synology[(Storage System)]
-        Vcenter_4Host[[Vcenter Cluster<br/>4 Hosts & VMs]]
-    end
-
-    %% MPLS TRANSPORT BACKBONE
-    subgraph Transport ["WAN/MPLS Transport Backbone"]
-        MPLS_A["Provider A MPLS Transport<br/>(Metro area coverage)"]
-        
-        MPLS_B["Provider B MPLS Transport<br/>(National coverage)"]
-    end
-
-    %% BRANCHES VIA PROVIDER A
-    subgraph ProviderA_Branches ["Branches via Provider A MPLS"]
-        subgraph BranchA ["Branch A"]
-            PC_A["User PC A<br/>(VLAN 17)"]
-            SW_A[Access Switch A]
-        end
-        BranchB["Branch B"]
-        BranchC["Branch C"]
-        BranchD["Branch D"]
-    end
-
-    %% BRANCHES VIA PROVIDER B
-    subgraph ProviderB_Branches ["Branches via Provider B MPLS"]
-        subgraph BranchE ["Branch E"]
-            SW_E[Access Switch E]
-            VLAN_102((VLAN 102)) --- SW_E
-        end
-        
-        subgraph BranchF ["Branch F"]
-            SW_F[Access Switch F]
-            VLAN_168((VLAN 168)) --- SW_F
+    %% WAN / ISP TRANSPORTS
+    subgraph ISP_WAN ["WAN ISP Core Networks"]
+        subgraph ProvA_WAN ["Provider A Path (Normal MPLS)"]
+            ProvA_MPLS["Provider A MPLS L3VPN (Standard Label Switching)"]:::wanA
         end
 
-        subgraph BranchG ["Branch G"]
-            SW_G[Access Switch G]
-            VLAN_157((VLAN 157)) --- SW_G
+        subgraph ProvB_WAN ["Provider B Path (Hybrid L3/MPLS)"]
+            ProvB_L3["Provider B L3 Network (Gateway: 10.90.97.249)"]:::wanB
+            ProvB_MPLS["Provider B MPLS Switch (Next-Hop: 192.168.1.10)"]:::wanB
         end
-        
-        OtherProviderB["Other regional branches"]
     end
 
-    %% PHYSICAL CONNECTIONS AND TRUNK/LACP DETAILS
-    ISP_A --> FW
-    ISP_B --> FW
-    ISP_C --> FW
-    CoreHO --- Synology
-    CoreHO -- "Internal routing connection" --> BranchCore
-    
-    %% DEFAULT ROUTE TO INTERNET
-    CoreHO -- "Default Route (0.0.0.0/0) to Internet" --> FW
-    
-    MPLS_A -.-> BranchB
-    MPLS_A -.-> BranchC
-    MPLS_A -.-> BranchD
-    MPLS_B -.-> OtherProviderB
+    %% BRANCH OFFICES
+    subgraph Branches ["Remote Branch Offices"]
+        subgraph Branch_ProviderB ["Branch Office (Provider B Link)"]
+            Branch_SW_B["Branch Router/Switch - IP: 172.18.46.1/32"]:::branch
+            PC_B["User PC (VLAN 16) - Dynamic DHCP IP"]:::branch
+        end
 
-    %% 1. Core HO connection to Provider A MPLS via port pair
-    CoreHO ===|interface GigabitEthernet1/0/44 & 1/0/45<br/>switchport mode trunk<br/>channel-protocol lacp<br/>channel-group 1 mode active| MPLS_A
+        subgraph Branch_ProviderA ["Branch Office (Provider A Link)"]
+            Branch_SW_A["Branch Switch (Standard L3VPN)"]:::branch
+        end
+    end
 
-    %% 2. Branch core connection to Provider B MPLS via port pair
-    BranchCore ===|interface GigabitEthernet1/0/19 & 1/0/20<br/>switchport trunk encapsulation dot1q<br/>switchport mode trunk<br/>channel-group 1 mode active| MPLS_B
+    %% PHYSICAL AND LOGICAL CONNECTIONS
+    CoreHO -- "Default Route (0.0.0.0/0)" --> FW
+    FW -. Internet .-> Internet((Internet))
+    CoreHO --- Vcenter
+    CoreHO --- DHCP_HO
 
-    %% PACKET FLOW ILLUSTRATION
-    
-    %% [RED PATH]: Provider A example from Branch A
-    PC_A == "(1) Send IP Packet<br/>Src: VLAN 17 -> Dst: VM" ==> SW_A
-    SW_A == "(2) Forward over Provider A MPLS" ==> MPLS_A
-    MPLS_A == "(3) Remove MPLS label -> Enter channel group 1" ==> CoreHO
+    %% Provider A Connection
+    Branch_SW_A <--> ProvA_MPLS <--> CoreHO
 
-    %% [BLUE PATH]: Provider B example from Branch E
-    VLAN_102 == "(A) Send IP Packet<br/>Src: VLAN 102 -> Dst: VM" ==> SW_E
-    SW_E == "(B) Label and push into backbone" ==> MPLS_B
-    MPLS_B == "(C) MPLS label switch to HO" ==> BranchCore
-    BranchCore == "(D) Forward to Core HO" ==> CoreHO
+    %% Provider B Connections
+    %% GigabitEthernet1/0/42 (Layer 3 Routed)
+    CoreHO == "Gi1/0/42 (no switchport) - IP: 10.90.97.250/30" ==> ProvB_L3
+    ProvB_L3 == "Routed WAN Connection (Subnet: 172.18.46.0/23)" ==> Branch_SW_B
 
-    %% [COMMON PATH AT HO]: Core switch performs L3 routing
-    CoreHO == "(4 / E) Receive and route traffic (L3 Routing)<br/>Forward directly to servers" ==> Vcenter_4Host
+    %% GigabitEthernet1/0/23 (VLAN 2 Access)
+    CoreHO == "Gi1/0/23 (VLAN 2 Access) - Port 48" ==> ProvB_MPLS
+    ProvB_MPLS == "MPLS L2VPN Tunnel (Host IP: 172.18.46.1/32)" ==> Branch_SW_B
 
-    %% PROVIDER PHYSICAL PE CONNECTION TO FIREWALL
-    MPLS_B -. "Provider edge switch uplink<br/>(Two physical WAN lines to Sophos / FortiGate)" .-> ISP_B
+    PC_B --- Branch_SW_B
 
-    %% Component style assignment
-    class ISP_A,ISP_B,ISP_C,MPLS_A,MPLS_B isp;
-    class FW fw;
-    class CoreHO,BranchCore core;
-    class BranchA,BranchB,BranchC,BranchD providerA;
-    class BranchE,BranchF,BranchG,OtherProviderB providerB;
-    
-    %% PACKET FLOW STYLES
-    %% Provider A path (red)
-    linkStyle 14,15,16 stroke:#ff1744,stroke-width:4px;
-    
-    %% Provider B path (blue)
-    linkStyle 17,18,19,20 stroke:#2979ff,stroke-width:4px;
-    
-    %% Common L3 routing path at Core (purple)
-    linkStyle 21 stroke:#9c27b0,stroke-width:4px;
+    %% Flow Annotation (Legend / Path Styling)
+    linkStyle 6,7 stroke:#4caf50,stroke-width:3px;
+    linkStyle 8,9 stroke:#2196f3,stroke-width:3px;
 ```
 
-* **VLAN Leaking & Layer 2 Loops:**
-  * *Use Case:* Preventing broadcast storms in enterprise environments using STP and proper VLAN tagging. 
-  * *Problem:* The PC in the Consulting Room belongs to VLAN 150, but it ultimately received an IP address from VLAN 204, which is designated for a different range.
-  * *Diagram:*
+##### Technical Details
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **Primary Route** | **MPLS L3VPN** | Provider A link routing main enterprise subnets securely. |
+| **Secondary Ingress** | **MPLS L2VPN Tunnel** | Provider B link carrying bridged management traffic to HO core. |
+| **Edge Routing Switch** | **Cisco Catalyst 3650** | Core Layer 3 switch terminating WAN trunks and dynamic routing policies. |
+| **Security Gateway** | **FortiGate / Sophos FW** | Border firewall managing Internet egress and security policies. |
+
+---
+
+#### 1.2. VLAN Leaking, Spanning Tree (STP) & EtherChannel Ingress Control
+
+##### Use Case
+Preventing broadcast storms and Layer 2 loops in multi-VLAN enterprise environments while ensuring physical link redundancy and traffic load balancing.
+
+##### Problem / Scenario & Solution
+**Problem:** In a branch office network, a workstation in a consulting room assigned to VLAN 150 incorrectly received a DHCP lease from VLAN 204. Investigation revealed that an IT Room switch, lacking Spanning Tree Protocol (STP), was connected with a physical loop that bridged VLAN 150 and VLAN 204 ports. This broadcast domain leakage caused DHCP Discover packets to loop, creating a race condition where the incorrect VLAN 204 IP offer arrived first.
+**Solution:** Deployed **Rapid Spanning Tree Protocol (Rapid-PVST+)** across all switches, designating the Core switch as the Root Bridge using priority values (e.g., `spanning-tree vlan 150,204 root primary`). Enabled **BPDU Guard** and **PortFast** on all edge ports to immediately disable ports receiving unauthorized BPDUs (preventing loops from rogue switches). To provide high-availability link redundancy to the servers, we implemented **EtherChannel** using Link Aggregation Control Protocol (LACP) in Active mode, using destination-IP load balancing to distribute traffic. We set up **IP SLA Tracking** on the uplink gateways to dynamically update routes during ISP failure.
+
+##### Architecture Diagram
 ```mermaid
 sequenceDiagram
     autonumber
@@ -221,87 +187,466 @@ sequenceDiagram
     Note over PC, HO: 💡 CISCO RECOMMENDATION (DEFINITIVE SOLUTION):<br/>- Configure Spanning-Tree BPDU Guard on 1st Floor SW (Block looping ports)<br/>- Configure DHCP Snooping (Trust only Uplink ports, drop abnormal DHCP)
 ```
 
-
-### 2. System Administration & High-Performance Computing
-
-#### 2.1. AI Infrastructure & Cloud GPU Provisioning
-
-* **Use Case:** Architecting and managing hybrid computing environments for heavy AI/Deep Learning workloads, balancing local resources and cloud scalability.
-* **Experience & Solution:** Directly deployed and administered an on-premise AI server infrastructure featuring 4x NVIDIA A5000 GPUs. Implemented **vGPU** virtualization to optimize resource sharing, allocating flexible GPU profiles to concurrent AI/Deep Learning workloads.
-
-##### Hybrid GPU Infrastructure & vGPU Virtualization Diagram
-
+##### Cisco Switch Spanning Tree & EtherChannel Architecture
 ```mermaid
 graph TD
-    classDef client fill:#eceff1,stroke:#37474f,stroke-width:2px;
-    classDef hypervisor fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px;
-    classDef gpu fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-    classDef vm fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
-    classDef cloud fill:#fff8e1,stroke:#ff8f00,stroke-width:2px;
-    classDef orchestrator fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px;
+    classDef root fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef switch fill:#eceff1,stroke:#37474f,stroke-width:2px;
+    classDef host fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef block fill:#ffebee,stroke:#c62828,stroke-width:2px;
 
-    Users([AI Researchers & Developers]):::client
-    
-    Orchestrator["Hybrid Job Scheduler / Orchestrator<br/>(Slurm / Kubernetes / Run:AI)"]:::orchestrator
+    RootBridge["Cisco Core Switch 3650<br/>(STP Root Bridge - Priority 4096)"]:::root
+    AccessSW1["Cisco Access Switch 1<br/>(Priority 32768)"]:::switch
+    AccessSW2["Cisco Access Switch 2<br/>(Priority 32768)"]:::switch
 
-    subgraph OnPrem ["On-Premise AI Server (Local Compute)"]
-        ServerHardware["Physical Dell/HPE Server<br/>(Dual Intel Xeon/AMD EPYC, 512GB RAM)"]
-        
-        subgraph GPU_Pool ["NVIDIA A5000 GPU Pool (4x A5000 24GB)"]
-            GPU1["Physical GPU 1<br/>(24GB GDDR6)"]:::gpu
-            GPU2["Physical GPU 2<br/>(24GB GDDR6)"]:::gpu
-            GPU3["Physical GPU 3<br/>(24GB GDDR6)"]:::gpu
-            GPU4["Physical GPU 4<br/>(24GB GDDR6)"]:::gpu
-        end
+    %% STP Port Roles
+    RootBridge -- "Designated Port (Forwarding)" --> AccessSW1
+    RootBridge -- "Designated Port (Forwarding)" --> AccessSW2
 
-        vGPUMgr["NVIDIA vGPU Software / Hypervisor<br/>(ESXi / KVM / Proxmox + vGPU Manager)"]:::hypervisor
+    AccessSW1 -- "Designated Port (Forwarding)" --> AccessSW2
+    AccessSW2 -. "Blocked Port (STP Discarding)" .-> AccessSW1:::block
 
-        subgraph VirtualWorkloads ["vGPU Virtual Machine Workloads"]
-            VM1["VM 1: Large LLM Training<br/>Profile: A5000-24Q (1 Full GPU)"]:::vm
-            VM2["VM 2: Dev / Jupyter Notebooks<br/>Profile: A5000-8Q (1/3 GPU)"]:::vm
-            VM3["VM 3: Vision Model Inference<br/>Profile: A5000-12Q (1/2 GPU)"]:::vm
-            VM4["VM 4: NLP Pipeline Training<br/>Profile: A5000-16Q (2/3 GPU)"]:::vm
-        end
+    %% EtherChannel / LACP
+    subgraph Link_Aggregation ["EtherChannel (LACP Active/Active)"]
+        LACP_1["Physical Link vmnic0 (10G)"]
+        LACP_2["Physical Link vmnic1 (10G)"]
     end
 
-    subgraph CloudGPU ["Cloud GPU Provisioning (Scalability Burst)"]
-        CloudScale["Auto-Scaler Gateway"]
-        
-        subgraph CloudProviders ["On-Demand Cloud GPU Instances"]
-            AWS_GPU["AWS EC2 GPU Instance<br/>(NVIDIA A10G / H100)"]:::cloud
-            GCP_GPU["GCP Compute Engine GPU<br/>(NVIDIA L4 / A100)"]:::cloud
-        end
+    RootBridge === Link_Aggregation === vCenterHost["ESXi Server Host"]:::host
+
+    %% Legend
+    style Link_Aggregation fill:#f3e5f5,stroke:#8e24aa,stroke-width:1px;
+```
+
+##### Technical Details
+| Component / Concept | Technology | Description |
+| :--- | :--- | :--- |
+| **Spanning Tree Protocol** | **Cisco Rapid-PVST+** | Rapid Per-VLAN Spanning Tree electing Root Bridge and blocking redundant paths in sub-seconds. |
+| **Loop Protection** | **BPDU Guard & PortFast** | Instantly err-disables edge ports if a BPDU is received, protecting against rogue switches. |
+| **Link Aggregation** | **LACP (802.3ad)** | Aggregates physical interfaces into a logical Port-Channel for high-throughput and failover. |
+| **Load Balancing** | **src-dst-ip Hash** | Distributes packets across EtherChannel bundle based on source and destination IP addresses. |
+| **Egress Monitoring** | **Cisco IP SLA Tracking** | Periodically ping tests external gateways to dynamically adjust L3 routing tables upon link failure. |
+
+---
+
+#### 1.3. Multi-SSID Enterprise Wireless Infrastructure (UniFi Deployment)
+
+##### Use Case
+Providing secure, high-density, and isolated wireless access for employees and students/guests across multi-floor branch offices while maintaining strict management plane isolation.
+
+##### Problem / Scenario & Solution
+**Problem:** Setting up a multi-AP wireless network using **UAP AC LR** APs and a **UniFi Network Controller** (running at `192.168.1.252`) where guest wireless clients are isolated from employee data and the AP management interfaces.
+**Solution:** Isolated AP management traffic onto **VLAN 8/9** (Management Plane) and client traffic to distinct VLANs (SSID `Nhanvien-WiFi` mapped to **VLAN 168**, and SSID `Hocvien-WiFi` / portal mapped to **VLAN 368**). Configured Cisco access switchports as trunks with **Native VLAN 8/9** to deliver untagged management frames to APs for zero-touch controller adoption and DHCP addressing, while tagging VLANs 168 and 368 to keep client networks secure and isolated.
+
+##### Architecture Diagram
+```mermaid
+graph TD
+    %% Styling Definitions
+    classDef sw fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef controller fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px;
+    classDef ap fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef client fill:#eceff1,stroke:#37474f,stroke-width:1px;
+
+    %% HEAD OFFICE / DATA CENTER
+    subgraph HO_Core ["Network Core / Gateway"]
+        CoreSwitch["Layer 3 Core Switch - DHCP Relay for VLANs 8, 9, 168, 368"]:::sw
+        UniFiController["UniFi Network Controller - Management IP: 192.168.1.252"]:::controller
     end
 
-    %% Connections
-    Users -->|1. Submit Training Jobs / Jupyter Sessions| Orchestrator
-    
-    %% Local Path
-    Orchestrator -->|2a. Schedule to Local Cluster| VirtualWorkloads
-    
-    %% Hardware Layer Map
-    GPU_Pool --- vGPUMgr
-    vGPUMgr -.->|Allocate Virtual GPU Profiles| VirtualWorkloads
-    ServerHardware --- GPU_Pool
+    %% ACCESS SWITCH
+    subgraph Access_Layer ["Access Switch Layer (Branch Can Tho)"]
+        AccessSwitch["Cisco Access Switch - Ports Configured with Native VLAN 8/9"]:::sw
+    end
 
-    %% Cloud Path
-    Orchestrator -->|2b. Local Resources Exhausted<br/>Trigger Cloud Bursting| CloudScale
-    CloudScale -->|3. Dynamically Provision Instance| CloudProviders
-    
-    class ServerHardware,GPU_Pool,vGPUMgr,VirtualWorkloads OnPrem;
-    class CloudScale,CloudProviders CloudGPU;
+    %% ACCESS POINTS
+    subgraph Wireless_APs ["Wireless Access Points (UAP AC LR)"]
+        AP_Tret["AP Branch-GroundFloor - IP: 172.18.9.10 (VLAN 9)"]:::ap
+        AP_L1["AP Branch-1stFloor - IP: 172.18.9.17 (VLAN 9)"]:::ap
+        AP_L2["AP Branch-2ndFloor - IP: 172.18.9.22 (VLAN 9)"]:::ap
+    end
+
+    %% WIRELESS CLIENTS & SSIDs
+    subgraph Client_Segments ["Wireless Client Segments"]
+        SSID_NhanVien["SSID: Nhanvien-WiFi (VLAN 168) - WPA-Personal Security"]
+        SSID_HocVien["SSID: Hocvien-WiFi (VLAN 368) - WPA-Personal Security"]
+        
+        Staff_Device["Staff Laptop / Phone - DHCP IP from VLAN 168 Pool"]:::client
+        Student_Device["Student Tablet / Phone - DHCP IP from VLAN 368 Pool"]:::client
+    end
+
+    %% CONNECTIONS
+    CoreSwitch <--> UniFiController
+    CoreSwitch == "Trunk Link (VLANs 8, 9, 168, 368)" ==> AccessSwitch
+
+    %% Access Switch to APs - Trunk with Native VLAN
+    AccessSwitch == "Switchport Mode Trunk, Native VLAN 8/9 (Untagged Management), Allowed: 8, 9, 168, 368" ==> AP_Tret
+    AccessSwitch == "Switchport Mode Trunk, Native VLAN 8/9 (Untagged Management), Allowed: 8, 9, 168, 368" ==> AP_L1
+    AccessSwitch == "Switchport Mode Trunk, Native VLAN 8/9 (Untagged Management), Allowed: 8, 9, 168, 368" ==> AP_L2
+
+    %% APs broadcast SSIDs
+    AP_Tret -. Broadcasts .-> SSID_NhanVien
+    AP_L1 -. Broadcasts .-> SSID_HocVien
+    AP_L2 -. Broadcasts .-> SSID_HocVien
+
+    %% Clients connect to SSIDs
+    SSID_NhanVien === Staff_Device
+    SSID_HocVien === Student_Device
+
+    %% Styling classes
+    class AP_Tret,AP_L1,AP_L2 ap;
+```
+
+##### Technical Details
+```cisco
+! --- Cisco Switchport Configuration for UniFi APs ---
+interface GigabitEthernet1/0/12
+ description CONNECT-TO-UNIFI-AP-LR
+ switchport trunk encapsulation dot1q
+ switchport trunk native vlan 9      ! Management VLAN (APs receive Untagged IP via DHCP)
+ switchport trunk allowed vlan 8,9,168,368
+ switchport mode trunk
+ spanning-tree portfast trunk       ! Enable PortFast for instant AP discovery
 ```
 
 ---
 
-#### 2.2. Enterprise Application Lifecycle & CI/CD Automation
+### 2. System & Virtualization Infrastructure
 
+#### 2.1. Enterprise vSphere Distributed Switch (vDS) & vSAN Clustered Storage
 
-* **Use Case:** End-to-end development, automation, and release management of enterprise applications with strict security and platform compliance.
-* **Experience & Solution:** Built cross-platform UIs using **Flutter** and developed **Python** scripts for system task automation. Designed and maintained **GitLab CI/CD** pipelines to fully automate the build, test, infrastructure setup, and deployment processes, ensuring secure public releases and compliance with the latest Google Play APIs.
+##### Use Case
+Designing a high-throughput, low-latency, and redundant virtualized networking and storage topology to support a vCenter-managed ESXi cluster, live VM migrations (vMotion), and clustered vSAN storage.
 
-#### GitLab CI/CD Pipeline Workflow Diagram
+##### Problem / Scenario & Solution
+**Problem:** Maintaining consistent virtual port group configurations, security profiles, and link aggregation (LACP) across 7 ESXi cluster nodes while isolating latency-sensitive storage (vSAN) and migration (vMotion) traffic from production guest VM workloads.
+**Solution:** Configured a central **vSphere Distributed Switch (vDS)** across the 7 ESXi host cluster to eliminate port group configuration drift. Implemented **vSphere Standard Switches (vSS)** on individual hosts to isolate edge firewall interfaces (PfSense WAN/LAN). Established uplink redundancy using **LACP Link Aggregation (Active/Active)** over dual 10G/25G SFP+ physical ports (`vmnic0` and `vmnic1`). Configured dedicated VMkernel ports with **Jumbo Frames (MTU 9000)** for vSAN storage (VLAN 30) and vMotion (VLAN 20) to maximize throughput and minimize CPU overhead, while keeping the ESXi Management VMkernel on a separate VLAN at MTU 1500.
 
+##### Architecture Diagram
+```mermaid
+graph TD
+    %% Styling Definitions
+    classDef switch fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef host fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef vds fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px;
+    classDef vss fill:#fff3e0,stroke:#ff9800,stroke-width:2px;
+    classDef storage fill:#fff8e1,stroke:#ff8f00,stroke-width:2px;
+    classDef vm fill:#eceff1,stroke:#37474f,stroke-width:1px;
+
+    %% PHYSICAL SWITCHES
+    subgraph Physical_Network ["Physical Network (Leaf-Spine)"]
+        Switch_A["Top-of-Rack Switch A (10G/25G Trunk)"]:::switch
+        Switch_B["Top-of-Rack Switch B (10G/25G Trunk)"]:::switch
+    end
+
+    %% vCENTER SERVER
+    vCenter["vCenter Server (Active Cluster Management)"]:::vds
+
+    %% PHYSICAL ESXi HOSTS
+    subgraph ESXi_Cluster ["ESXi Host Cluster"]
+        subgraph ESXi_Node ["Single ESXi Host Instance"]
+            %% Physical Uplinks
+            vmnic0["Physical Uplink vmnic0 (10G SFP+)"]
+            vmnic1["Physical Uplink vmnic1 (10G SFP+)"]
+            vmnic2["Physical Uplink vmnic2 (1G Cu)"]
+            vmnic3["Physical Uplink vmnic3 (1G Cu)"]
+            
+            %% vSphere Distributed Switch
+            subgraph vDS_Switch ["vSphere Distributed Switch (vDS)"]
+                direction TB
+                Uplink_Group["Distributed Uplink Group (LACP Port Channel)"]
+                
+                %% vDS Port Groups
+                pg_vsan["dvPortGroup-vSAN (Storage VLAN) - MTU 9000"]
+                pg_vmotion["dvPortGroup-vMotion (Migration VLAN) - MTU 9000"]
+                pg_mgmt["dvPortGroup-Management (Mgmt VLAN) - MTU 1500"]
+                pg_staff["dvPortGroup-Staff (Employee VLAN) - MTU 1500"]
+                pg_guest["dvPortGroup-Guest (Guest VLAN) - MTU 1500"]
+            end
+
+            %% vSphere Standard Switch
+            subgraph vSS_Switch ["vSphere Standard Switch (vSS)"]
+                direction TB
+                Standard_Uplink["vSS Uplink Group (NIC Teaming)"]
+                
+                %% vSS Port Groups
+                pg_pfsense_lan["PortGroup-Firewall_LAN (LAN VLAN)"]
+                pg_pfsense_wan["PortGroup-Firewall_WAN (Untagged)"]
+            end
+            
+            %% VMkernel Adapters
+            vmk0["vmk0 (Management IP)"]
+            vmk1["vmk1 (vSAN Storage IP)"]
+            vmk2["vmk2 (vMotion Migration IP)"]
+        end
+    end
+
+    %% VIRTUAL MACHINES
+    vCenter_VM["vCenter Appliance VM"]:::vm
+    Firewall_VM["Virtual Firewall VM"]:::vm
+    Prod_VM["Production Guest VMs"]:::vm
+    
+    %% DATASTORES
+    vSAN_DS[("vSAN Clustered Datastore")]:::storage
+    NFS_DS[("Network Backup Storage (NFS)")]:::storage
+
+    %% CONNECTIONS
+    vCenter -. Manages .-> vDS_Switch
+    vCenter -. Manages .-> vSS_Switch
+
+    %% VM to Port Group mappings
+    vCenter_VM --- pg_mgmt
+    Prod_VM --- pg_staff
+    Prod_VM --- pg_guest
+    Firewall_VM --- pg_pfsense_lan
+    Firewall_VM --- pg_pfsense_wan
+
+    %% VMkernel to Port Groups
+    vmk0 --- pg_mgmt
+    vmk1 --- pg_vsan
+    vmk2 --- pg_vmotion
+
+    %% Storage connections
+    vmk1 -. Low-Latency Storage Traffic .-> vSAN_DS
+    vCenter_VM -. Network Backup .-> NFS_DS
+
+    %% Port Groups to Uplinks
+    pg_vsan ---> Uplink_Group
+    pg_vmotion ---> Uplink_Group
+    pg_mgmt ---> Uplink_Group
+    pg_staff ---> Uplink_Group
+    pg_guest ---> Uplink_Group
+
+    pg_pfsense_lan ---> Standard_Uplink
+    pg_pfsense_wan ---> Standard_Uplink
+
+    %% Uplinks to Physical NICS
+    Uplink_Group === vmnic0
+    Uplink_Group === vmnic1
+    Standard_Uplink === vmnic2
+    Standard_Uplink === vmnic3
+
+    %% Physical NICs to Physical Switches
+    vmnic0 <== LACP Trunk ==> Switch_A
+    vmnic1 <== LACP Trunk ==> Switch_B
+    vmnic2 <== Trunk ==> Switch_A
+    vmnic3 <== Trunk ==> Switch_B
+```
+
+##### Technical Details
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **Hypervisor Platform** | **VMware ESXi** | Bare-metal hypervisor running on physical servers to host virtualized compute resources. |
+| **Central Management** | **VMware vCenter Server** | Centralized administration platform orchestrating cluster HA, vMotion, vDS configurations, and storage policies. |
+| **Clustered Storage** | **VMware vSAN** | Software-defined storage tier aggregating local host drives into a unified, shared datastore. |
+| **Virtual Networking** | **vSphere Distributed Switch (vDS)** | Centralized switch fabric providing consistent port groups, LACP trunking, and VLAN tagging across cluster hosts. |
+| **Local Virtual Switch** | **vSphere Standard Switch (vSS)** | Host-level switch isolating local virtual appliance uplinks (e.g., edge firewalls) from the distributed fabric. |
+
+---
+
+#### 2.2. Virtualized Desktop Infrastructure (VDI) with vGPU & PCIe Passthrough
+
+##### Use Case
+Delivering high-performance, graphics-accelerated virtual environments for online learning classes without deploying expensive physical workstations to each remote user.
+
+##### Problem / Scenario & Solution
+**Problem:** Students of online classes require virtual desktops capable of running graphics-intensive applications (e.g., video editing, design, or 3D modeling) with low latency. Allocating a dedicated physical GPU to each individual VM is highly inefficient and creates resource bottlenecks.
+**Solution:** Implemented an on-premise Virtualized Desktop Infrastructure (VDI) powered by **VMware Horizon** and **NVIDIA vGPU technology**. Physical GPUs (e.g., NVIDIA A5000 24GB cards installed in Supermicro/Dell servers) are virtualized using the **NVIDIA vGPU Manager** running on the ESXi hypervisor, allowing physical frames to be sliced into specific virtual GPU profiles (such as `A5000-8Q` or `A5000-12Q` profiles) allocated dynamically to virtual machines. For workloads requiring extreme performance, dedicated **PCIe Passthrough (DirectPath I/O)** maps physical GPUs directly to target VMs. Desktops running Zorin OS or Windows 11 are provisioned in pools via vCenter, allowing remote students to connect securely using the VMware Horizon Client over the Blast Extreme or PCoIP protocol.
+
+##### Architecture Diagram
+```mermaid
+graph TD
+    classDef client fill:#eceff1,stroke:#37474f,stroke-width:2px;
+    classDef gateway fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef mgmt fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px;
+    classDef host fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px;
+    classDef gpu fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
+    classDef vm fill:#e3f2fd,stroke:#1565c0,stroke-width:2px;
+
+    Students([Remote Students]):::client
+    HorizonClient["VMware Horizon Client / Web portal"]:::client
+    HorizonGateway["Horizon UAG (Unified Access Gateway)"]:::gateway
+    HorizonConn["Horizon Connection Server"]:::mgmt
+    vCenter["vCenter Server (Desktop Pool Provisioning)"]:::mgmt
+
+    subgraph ESXi_Hosts ["ESXi Host Hypervisors"]
+        ESXi_Node["ESXi Server (Compute Node)"]:::host
+        vGPUMgr["NVIDIA vGPU Manager (Host Driver)"]:::host
+        
+        subgraph Physical_GPUs ["Physical GPU Pool"]
+            GPU_A5000["NVIDIA A5000 (24GB GDDR6)"]:::gpu
+        end
+
+        subgraph Desktop_VMs ["Virtualized Desktop Pools"]
+            VM_ZorinPro["Zorin OS Pro VM<br/>vGPU: A5000-8Q (8GB)"]:::vm
+            VM_ZorinCore["Zorin OS Core VM<br/>vGPU: A5000-4Q (4GB)"]:::vm
+            VM_Win11["Windows 11 VM<br/>PCIe Passthrough (DirectPath I/O)"]:::vm
+        end
+    end
+
+    %% Connections
+    Students --> HorizonClient
+    HorizonClient -->|Blast Extreme / PCoIP Protocol| HorizonGateway
+    HorizonGateway --> HorizonConn
+    HorizonConn -. Query VM Status .-> vCenter
+    vCenter -. Deploy / Manage VM Lifecycle .-> ESXi_Node
+
+    %% Hardware mapping
+    ESXi_Node --- Physical_GPUs
+    Physical_GPUs --- vGPUMgr
+    vGPUMgr -.->|vGPU Slicing & Direct Mapping| Desktop_VMs
+    HorizonGateway -->|Route Session| Desktop_VMs
+```
+
+##### Technical Details
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **Connection Broker** | **VMware Horizon Connection Server** | Manages client connections, user authentication, and routes sessions to available desktops. |
+| **Gateway Access** | **Horizon UAG (Unified Access Gateway)** | Secure edge gateway proxying client traffic into the internal VDI network. |
+| **GPU Virtualization** | **NVIDIA vGPU Manager (VIB)** | Kernel-level driver installed on ESXi host to slice physical GPU memory and cores. |
+| **Hardware Acceleration** | **NVIDIA A5000 24GB GPUs** | Physical PCIe graphics cards providing hardware rendering resources. |
+| **Direct Device Mapping** | **PCIe DirectPath I/O Passthrough** | Bypasses hypervisor overhead to map a physical GPU directly to a single high-performance VM. |
+| **Virtual Desktops** | **Zorin OS & Windows 11** | Optimized template VMs pre-installed with Horizon Agent for remote desktop delivery. |
+
+---
+
+#### 2.3. Enterprise VoIP & High-Capacity Call Center
+
+##### Use Case
+Architecting, securing, and operating a high-capacity, multi-tenant Call Center infrastructure capable of processing massive concurrent inbound/outbound calls for various enterprise branches and educational institutions.
+
+##### Problem / Scenario & Solution
+**Problem:** Managing a PBX system handling 180+ active agents with high call volumes while securing the VoIP gateway against persistent external SIP brute-force scans and preventing audio packet loss or call dropped issues.
+**Solution:** Deployed FreeSWITCH and FusionPBX on a secure Debian OS. Hardened security by configuring **Fail2ban** to parse FreeSWITCH log events and dynamically block offending IPs via **iptables/nftables** rules, and isolated telco SIP traffic using multi-table routing. Unified Let's Encrypt SSL/TLS certificates across both **Internal** (WebRTC/WSS port `7443`) and **External** (SIP-TLS port `5081`) profiles to guarantee zero mismatch during TLS handshakes. Integrated custom **Lua scripts** within the XML dialplan to dynamically map outbound Caller IDs (campaign masking) and track QoS metrics. Exposed the FreeSWITCH **Event Socket Layer (ESL)** to allow CRM integration for instant client record popups.
+
+##### Architecture Diagram
+```mermaid
+graph TD
+    classDef pstn fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef gateway fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
+    classDef security fill:#ffcdd2,stroke:#c62828,stroke-width:2px;
+    classDef pbx fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px;
+    classDef logic fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px;
+    classDef db fill:#b2dfdb,stroke:#00796b,stroke-width:2px;
+    classDef agents fill:#ffebee,stroke:#c62828,stroke-width:2px;
+
+    Threats((Malicious Botnets /<br/>SIP Scanners)):::pstn
+    Customers((Customers /<br/>End-users)):::pstn
+
+    subgraph Edge_Network ["Edge Network & ISP Trunks"]
+        ProviderA["Tier-1 Telecom A<br/>(Primary SIP Trunk)"]:::gateway
+        ProviderB["Tier-1 Telecom B<br/>(Failover SIP Trunk)"]:::gateway
+    end
+
+    subgraph OS_Security ["Debian OS Security & Network Layer"]
+        Firewall{"iptables / nftables<br/>+ Multi-table Routing"}:::security
+        Fail2ban["Fail2ban Jails<br/>(Dynamic SIP Ban)"]:::security
+        
+        Threats -.->|SIP Brute Force / Toll Fraud| Firewall
+        Fail2ban -->|Parses freeswitch.log<br/>Injects Drop Rules| Firewall
+        
+        subgraph Core_Switch ["FreeSWITCH / FusionPBX Core"]
+            ExtProfile["External Profile (Port 5080/5081)<br/>Strict Provider ACL"]:::pbx
+            IntProfile["Internal Profile (Port 5060/7443)<br/>Endpoint & WebRTC ACL"]:::pbx
+            UnifiedSSL(("Unified Let's Encrypt<br/>SSL/TLS Certs")):::logic
+            
+            subgraph Routing_Engine ["Dialplan & Logic Engine"]
+                GlobalIVR["Centralized IVR<br/>(Powered by Global Vars)"]:::logic
+                CustomDialplan["XML Dialplan & LUA<br/>(Dynamic CID & Logic)"]:::logic
+            end
+            
+            subgraph ACD_Queues ["mod_callcenter (180+ Agents)"]
+                QueueLogic["Tier Rules & Strategies<br/>(Fewest Calls, Round-Robin)"]:::pbx
+            end
+        end
+        
+        subgraph Observability ["Data & Observability"]
+            CDR["CDR Parsing Engine<br/>(QoS, MOS, Q.850)"]:::db
+            Database[("PostgreSQL<br/>(State & Configs)")]:::db
+            ESL["Event Socket Layer<br/>(Port: 8021)"]:::db
+        end
+    end
+
+    subgraph Endpoint_Dev ["Endpoints & Dev Integration"]
+        DevCRM["In-house CRM App<br/>(Listens to ESL for Call Popups)"]:::agents
+        WebRTC["WebRTC UI<br/>(Browsers via WSS)"]:::agents
+        Softphone["Softphones<br/>(SIP/TLS)"]:::agents
+    end
+
+    %% Network Flow
+    ProviderA <-->|Authorized SIP/RTP| Firewall
+    ProviderB <-->|Authorized SIP/RTP| Firewall
+    Firewall <--> ExtProfile
+    
+    %% Core Connections
+    ExtProfile -.-> UnifiedSSL
+    IntProfile -.-> UnifiedSSL
+    ExtProfile <--> CustomDialplan
+    CustomDialplan --> GlobalIVR
+    GlobalIVR --> QueueLogic
+    QueueLogic <--> IntProfile
+    
+    IntProfile <--> Softphone
+    IntProfile <--> WebRTC
+    
+    %% Dev and Monitoring Flow
+    Core_Switch -->|Write Call Stats| CDR
+    CDR --> Database
+    Core_Switch <--> ESL
+    ESL <-->|Real-time Agent Status| DevCRM
+    Database <-->|Historical Sync| DevCRM
+```
+
+##### Technical Details
+| Component | Technology | Description |
+| :--- | :--- | :--- |
+| **VoIP Engine** | **FreeSWITCH / FusionPBX** | Core PBX handling SIP signaling, WebRTC gateways, media routing, and call queues. |
+| **Operating System** | **Debian Linux** | Secure, stable platform with multi-table routing for telco trunk isolation. |
+| **Border Security** | **Fail2ban + iptables/nftables** | Dynamic firewall rules blocking unauthorized SIP brute-force attempts. |
+| **Transport Security** | **SIP-TLS & WebRTC (WSS)** | Secured signaling using unified Let's Encrypt certificates. |
+| **CRM Integration** | **FreeSWITCH Event Socket (ESL)** | Programmatic socket bridge triggering real-time client popups in custom CRM. |
+| **Dialplan Scripting** | **Lua (mod_lua)** | Script hook injecting dynamic routing and Caller ID masking. |
+
+```xml
+<!-- Example: Advanced Outbound Dialplan with Lua Injection -->
+<extension name="ENTERPRISE-OUTBOUND-ROUTING" continue="false">
+    <condition field="${user_exists}" expression="false"/>
+    <condition field="destination_number" expression="^(\d{10,11})$">
+        <!-- 1. Dev/CRM Integration: Exporting UUID and Account Codes -->
+        <action application="set" data="sip_h_X-accountcode=${accountcode}"/>
+        <action application="export" data="call_direction=outbound"/>
+        <action application="export" data="sip_h_X-Call_UUID=${uuid}"/>
+        
+        <!-- 2. Lua Script Injection: Synchronize exact answer time for CRM billing -->
+        <action application="export" data="execute_on_answer=lua reset_answered_time.lua ${uuid}"/>
+        
+        <!-- 3. QoS Preparation & Dynamic CID Mapping -->
+        <action application="set" data="rtp_jitter_buffer=true"/>
+        <action application="unset" data="call_timeout"/>
+        <action application="set" data="hangup_after_bridge=true"/>
+        
+        <!-- Injecting Masked/Dynamic Outbound Caller ID -->
+        <action application="set" data="effective_caller_id_number=$${global_outbound_caller_id}"/>
+        
+        <!-- 4. Bridge to Tier-1 Provider SIP Gateway -->
+        <action application="bridge" data="sofia/gateway/provider-primary-gateway/$1"/>
+    </condition>
+</extension>
+```
+
+---
+
+### 3. DevOps & Automation Infrastructure
+
+#### 3.1. Enterprise Application Lifecycle & CI/CD Pipelines
+
+##### Use Case
+End-to-end development, automation, and release management of enterprise applications with strict security and platform compliance.
+
+##### Problem / Scenario & Solution
+**Problem:** Ensuring secure, repeatable, and automated building, signing, and publishing of cross-platform applications without exposing secure Keystore files or manual developer builds.
+**Solution:** Designed and maintained a multi-stage **GitLab CI/CD pipeline** running on dedicated self-hosted runners. The pipeline automates the retrieval of security keys, builds production Android App Bundles (AAB) using **Flutter**, runs automated testing, uploads build artifacts to the **GitLab Package Registry**, and deploys directly to internal and production tracks of the **Google Play Console** using **Fastlane**.
+
+##### Architecture Diagram
 ```mermaid
 graph TD
     classDef stage fill:#f5f5f5,stroke:#9e9e9e,stroke-width:2px,stroke-dasharray: 5 5;
@@ -351,8 +696,7 @@ graph TD
     class Stage_CreateKey,Stage_Build,Stage_Publish stage;
 ```
 
-#### GitLab CI/CD Pipeline Configuration (`.gitlab-ci.yml`)
-
+##### Technical Details
 ```yaml
 variables:
   FLUTTERVER: 3.19.5
@@ -481,16 +825,19 @@ release:
   tags:
     - flutter-runner
 ```
+
 ---
 
-### 3. On-Demand Container Provisioning & Automated Edge Ingress Architecture
+#### 3.2. On-Demand Container Provisioning & Traefik Edge Ingress
 
-* **Dynamic Container Micro-Orchestration & Auto-SSL Mapping System**
-  * **Use Case:** Scaling independent, isolated worker/service container instances on-demand while automating Layer 7 routing, subdomain mapping, and TLS certificate generation for multi-tenant applications.
-  * **Experience & Solution:** Designed and implemented a high-performance infrastructure automation system leveraging a Python Flask API gateway, Redis state caching, Portainer API orchestration, and Traefik edge reverse proxy. When a client authenticates via a dynamic interactive session flow, the gateway extracts session tokens and dynamically deploys an isolated **Micro-Stack (standalone Docker Compose file)** per container via the Portainer API. This decentralized approach eliminates the re-evaluation delays of a monolithic stack, dropping provisioning times from 30 seconds to **1-2 seconds**. Traefik automatically discovers the new container's labels via the Docker provider, maps a unique subdomain, and provisions an SSL certificate via Let's Encrypt.
+##### Use Case
+Scaling independent, isolated worker/service container instances on-demand while automating Layer 7 routing, subdomain mapping, and TLS certificate generation for multi-tenant applications.
 
-##### System Architecture & Workflow Diagram
+##### Problem / Scenario & Solution
+**Problem:** Scaling dynamically-provisioned user workspaces where each user session requires a dedicated docker container. Traditional dynamic updates to a single massive docker-compose file cause long re-evaluation delays (~15-30 seconds).
+**Solution:** Developed a micro-orchestration system using a Python Flask API, Redis, and the Portainer API. When a user requests a session, the API deploys an isolated **Micro-Stack** (individual standalone docker-compose file) via Portainer API endpoints, reducing deployment times to **1-2 seconds**. Configured **Traefik** as the edge reverse proxy, which dynamically discovers the new container's labels via the Docker provider, maps a unique subdomain, and requests SSL certificates from Let's Encrypt.
 
+##### Architecture Diagram
 ```mermaid
 graph TD
     classDef client fill:#eceff1,stroke:#37474f,stroke-width:2px;
@@ -532,8 +879,7 @@ graph TD
     Traefik -->|15. Reverse Proxy Traffic| WorkerContainer
 ```
 
-##### Core Technological Components
-
+##### Technical Details
 | Component | Technology | Description |
 | :--- | :--- | :--- |
 | **API Gateway & Logic** | **Python Flask (asyncio, PyYAML)** | Handles dynamic session management, parses Docker Compose configurations, and integrates with the orchestrator API. |
@@ -542,31 +888,15 @@ graph TD
 | **Edge Ingress Proxy** | **Traefik (Docker Provider)** | Dynamically registers routing paths, binds subdomains, handles SSL challenge via Let's Encrypt (HTTP/DNS challenge), and manages client traffic. |
 | **Worker Environment** | **Docker Container** | An isolated workspace instance running on-demand microservices for a specific authenticated user. |
 
-##### Core API Endpoints
-
-1. **System & Health Diagnostics**
-   * **`GET /api/v1/self/health`**: Simple gateway health check.
-   * **`GET /api/v1/self/check-logic`**: Real-time diagnostic suite testing active dependency modules, configuration schemas, Redis cache, and Portainer orchestration availability.
-
-2. **Session Verification & Auth Lifecycle**
-   * **`GET /api/v1/self/login`**: Initializes a background verification thread with dynamic client agent metadata.
-   * **`GET /api/v1/self/login/get-qr-status`**: Polls the status of the verification session. Returns verification token and extracted session credentials upon successful user approval.
-
-3. **Instance Provisioning**
-   * **`POST /api/v1/self/login/create-new-account`**: Deploys an isolated worker container instance by programmatically deploying a dedicated Micro-Stack on the Portainer API, mapping internal network to the host's central `zalo_cloud_sytem_custom_network` as external, and performing automatic container migration.
-   * **`DELETE /api/v1/self/login/delete-account`**: De-provisions the isolated instance, removing the dedicated Micro-Stack or cleaning up the service mapping from the historical monolithic stack.
-
-##### Automated Routing via Traefik Labels & External Network
-When the API provisions a new container, the following configuration metadata labels and network definitions are dynamically injected into the compose service block, prompting Traefik to register the ingress route and request SSL certificates:
 ```yaml
 networks:
   custom_network:
-    name: zalo_cloud_sytem_custom_network
+    name: app_cloud_system_custom_network
     external: true
 
 services:
   account-${phone_number}:
-    image: zalocloud/zalo_cloud:latest
+    image: enterprise/app-service:latest
     networks:
       - custom_network
     labels:
@@ -576,147 +906,4 @@ services:
       - "traefik.http.routers.service-${service_id}-https.entrypoints=websecure"
       - "traefik.http.routers.service-${service_id}-https.tls=true"
       - "traefik.http.routers.service-${service_id}-https.tls.certresolver=letsencrypt"
-```
-
-### 4. Enterprise VoIP & Advanced Call Center Infrastructure
-
-* **Use Case:** Architecting, securing, and operating a high-capacity, multi-tenant Call Center infrastructure capable of processing massive concurrent inbound/outbound calls for various enterprise branches and educational institutions.
-* **Architecture Strategy:** Adopted a deeply systematic approach covering all layers—from Debian OS network routing and perimeter security to FreeSWITCH core processing, dynamic dialplan logic, and external CRM integration. The goal was to build a highly secure, observable, and developer-friendly VoIP ecosystem.
-
-#### System Architecture & Core Integration Diagram
-
-```mermaid
-graph TD
-    classDef pstn fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
-    classDef gateway fill:#fff9c4,stroke:#fbc02d,stroke-width:2px;
-    classDef security fill:#ffcdd2,stroke:#c62828,stroke-width:2px;
-    classDef pbx fill:#e8eaf6,stroke:#3f51b5,stroke-width:2px;
-    classDef logic fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px;
-    classDef db fill:#b2dfdb,stroke:#00796b,stroke-width:2px;
-    classDef agents fill:#ffebee,stroke:#c62828,stroke-width:2px;
-
-    Threats((Malicious Botnets /<br/>SIP Scanners)):::pstn
-    Customers((Customers /<br/>End-users)):::pstn
-
-    subgraph Edge_Network ["Edge Network & ISP Trunks"]
-        ProviderA["Tier-1 Telecom A<br/>(Primary SIP Trunk)"]:::gateway
-        ProviderB["Tier-1 Telecom B<br/>(Failover SIP Trunk)"]:::gateway
-    end
-
-    subgraph OS_Security ["Debian OS Security & Network Layer"]
-        Firewall{"iptables / nftables<br/>+ Multi-table Routing"}:::security
-        Fail2ban["Fail2ban Jails<br/>(Dynamic SIP Ban)"]:::security
-        
-        Threats -.->|SIP Brute Force / Toll Fraud| Firewall
-        Fail2ban -->|Parses freeswitch.log<br/>Injects Drop Rules| Firewall
-        
-        subgraph Core_Switch ["FreeSWITCH / FusionPBX Core"]
-            ExtProfile["External Profile (Port 5080/5081)<br/>Strict Provider ACL"]:::pbx
-            IntProfile["Internal Profile (Port 5060/7443)<br/>Endpoint & WebRTC ACL"]:::pbx
-            UnifiedSSL(("Unified Let's Encrypt<br/>SSL/TLS Certs")):::logic
-            
-            subgraph Routing_Engine ["Dialplan & Logic Engine"]
-                GlobalIVR["Centralized IVR<br/>(Powered by Global Vars)"]:::logic
-                CustomDialplan["XML Dialplan & LUA<br/>(Dynamic CID & Logic)"]:::logic
-            end
-            
-            subgraph ACD_Queues ["mod_callcenter (180+ Agents)"]
-                QueueLogic["Tier Rules & Strategies<br/>(Fewest Calls, Round-Robin)"]:::pbx
-            end
-        end
-        
-        subgraph Observability ["Data & Observability"]
-            CDR["CDR Parsing Engine<br/>(QoS, MOS, Q.850)"]:::db
-            Database[("PostgreSQL<br/>(State & Configs)")]:::db
-            ESL["Event Socket Layer<br/>(Port: 8021)"]:::db
-        end
-    end
-
-    subgraph Endpoint_Dev ["Endpoints & Dev Integration"]
-        DevCRM["In-house CRM App<br/>(Listens to ESL for Call Popups)"]:::agents
-        WebRTC["WebRTC UI<br/>(Browsers via WSS)"]:::agents
-        Softphone["Softphones<br/>(SIP/TLS)"]:::agents
-    end
-
-    %% Network Flow
-    ProviderA <-->|Authorized SIP/RTP| Firewall
-    ProviderB <-->|Authorized SIP/RTP| Firewall
-    Firewall <--> ExtProfile
-    
-    %% Core Connections
-    ExtProfile -.-> UnifiedSSL
-    IntProfile -.-> UnifiedSSL
-    ExtProfile <--> CustomDialplan
-    CustomDialplan --> GlobalIVR
-    GlobalIVR --> QueueLogic
-    QueueLogic <--> IntProfile
-    
-    IntProfile <--> Softphone
-    IntProfile <--> WebRTC
-    
-    %% Dev and Monitoring Flow
-    Core_Switch -->|Write Call Stats| CDR
-    CDR --> Database
-    Core_Switch <--> ESL
-    ESL <-->|Real-time Agent Status| DevCRM
-    Database <-->|Historical Sync| DevCRM
-```
-
-#### Key Engineering Implementations & Systematic Problem Solving
-
-**1. OS-Level Security & Network Topology (Debian Linux)**
-*   **Challenge:** Managing distinct subnets for external SIP providers while protecting the PBX from aggressive SIP brute-force and toll-fraud attacks.
-*   **Implementation:** Engineered multi-table routing on Debian to strictly isolate Telco VoIP traffic from public internet traffic. Implemented robust perimeter defense using **Fail2ban** integrated with `iptables/nftables`. By writing custom regex filters to parse `/var/log/freeswitch/freeswitch.log`, the system dynamically detects and drops malicious IPs exhibiting anomalous registration attempts or scanning behaviors, drastically reducing CPU overhead and securing the ACLs.
-
-**2. Unified Secure Transport (WebRTC & SIP-TLS)**
-*   **Challenge:** Browsers strictly block WebRTC (WSS) without valid SSL, and softphones require secure SIP-TLS, often leading to certificate mismatch errors across different FreeSWITCH profiles.
-*   **Implementation:** Systematized the SSL deployment pipeline. Unified Let's Encrypt certificate directories across both the **Internal Profile** (handling WebRTC over WSS on port `7443`) and the **External Profile** (handling SIP-TLS on port `5081`). This unified approach guaranteed zero-mismatch errors during key exchanges, ensuring pristine audio and signaling security for 180+ remote agents.
-
-**3. Advanced Dialplan Engineering & IVR Abstraction**
-*   **Challenge:** Managing routing logic for dozens of specific business campaigns without creating spaghetti XML code.
-*   **Implementation:** Abstracted hard-coded dialplans into FreeSWITCH **Global Variables**. Built a centralized, dynamic IVR system (`IVR_Hotline`) governed by multi-layered Time Conditions (distinguishing business hours from holidays via cron-based evaluation). For outbound traffic, injected custom **Lua scripts** (`reset_answered_time.lua`) directly into the dialplan to dynamically map specific Virtual Phone Numbers (Caller ID) based on the routed campaign, ensuring strict compliance with Telco SIP headers.
-
-**4. Deep Diagnostics, SIP Tracing & QoS Troubleshooting**
-*   **Challenge:** Accurately identifying the root cause of voice quality degradation (e.g., one-way audio, choppy voices) or call routing failures without blind guessing, and isolating issues between the internal IT network and the external Telco provider.
-*   **Implementation:** Developed a highly empirical troubleshooting framework utilizing **`sngrep`** (for visual, real-time SIP signaling analysis), `fs_cli`, and raw **Call Detail Records (CDR)**. 
-    *   **Tracing the Call Path:** I extract exact variables to paint the full picture of a call: Who initiated it (`caller_id_number`: `16802`), the target (`destination_number`: `0819460897`), the processing gateway/profile (`channel_name`: `sofia/internal/...`), the remote endpoint/telco IP (`sip_network_ip`: `172.18.X.X`), and the local handling interface (`local_media_ip`: `192.168.1.223`). 
-    *   **QoS Fault Isolation:** To pinpoint audio degradation, I analyze asymmetric RTP streams. For instance, detecting severe inbound degradation with metrics like `rtp_audio_in_mos: 2.26` (poor Mean Opinion Score), a high `skip_packet_count: 1113`, and massive `jitter_max_variance: 2689.55`, while confirming a flawless outbound stream (`rtp_audio_out_skip_packet_count: 0`). 
-    *   By cross-referencing endpoint hardware (`sip_user_agent: Grandstream GXP1610`) and exact protocol-level hangup causes (`sip_reason: Q.850;cause=16;text="NORMAL_CLEARING"` vs `cause=38 NETWORK_OUT_OF_ORDER`), I can definitively prove whether a flaw originated from local LAN packet loss, endpoint malfunction, or external Telco gateway degradation.
-
-
-**5. Cross-Functional Developer Integration (ESL)**
-*   **Challenge:** Enabling the in-house CRM development team to trigger screen-popups and sync agent states (Logged In, On Break, Busy) without them needing to understand SIP protocol intricacies.
-*   **Implementation:** Bridged the gap between telecom infrastructure and software development by exposing FreeSWITCH's **Event Socket Layer (ESL)** and backend PostgreSQL database. This allowed developers to seamlessly subscribe to real-time telephony events via APIs, orchestrating automatic customer data popups on inbound calls and tracking accurate billing durations.
-
-#### Technical Snippet: Systematic Dialplan Lua Injection & QoS Tracking
-
-```xml
-<!-- Example: Advanced Outbound Dialplan with Lua Injection and Quality Tracking -->
-<extension name="ENTERPRISE-OUTBOUND-ROUTING" continue="false" uuid="1e97a789-a30c-4023-ba32-ab12bc71db48">
-    <condition field="${user_exists}" expression="false"/>
-    <condition field="destination_number" expression="^(\d{10,11})$">
-        
-        <!-- 1. Dev/CRM Integration: Exporting UUID and Account Codes -->
-        <action application="set" data="sip_h_X-accountcode=${accountcode}"/>
-        <action application="export" data="call_direction=outbound"/>
-        <action application="export" data="sip_h_X-Call_UUID=${uuid}"/>
-        
-        <!-- 2. Lua Script Injection: Synchronize exact answer time for CRM billing -->
-        <action application="export" data="execute_on_answer=lua reset_answered_time.lua ${uuid}"/>
-        
-        <!-- 3. QoS Preparation & Dynamic CID Mapping -->
-        <action application="set" data="rtp_jitter_buffer=true"/>
-        <action application="unset" data="call_timeout"/>
-        <action application="set" data="hangup_after_bridge=true"/>
-        
-        <!-- Injecting Masked/Dynamic Outbound Caller ID -->
-        <action application="set" data="effective_caller_id_name=${outbound_caller_id_name}"/>
-        <action application="set" data="effective_caller_id_number=$${global_outbound_caller_id}"/>
-        <action application="set" data="inherit_codec=true"/>
-        <action application="set" data="callee_id_number=$1"/>
-        
-        <!-- 4. Bridge to Tier-1 Provider SIP Gateway -->
-        <action application="bridge" data="sofia/gateway/provider-primary-gateway-uuid/$1"/>
-    </condition>
-</extension>
 ```
