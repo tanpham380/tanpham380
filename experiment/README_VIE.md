@@ -207,74 +207,75 @@ Phương pháp này giúp kỹ sư kiểm tra trường `giaddr` (IP của gatew
 Mô hình mạng STP 3 switch (Core / Distribution / Access) là trung tâm — các khối lý thuyết xung quanh đóng vai trò bổ trợ, giải thích cách mô hình vận hành:
    
    ```mermaid
-   graph TD
-       classDef root fill:#ffebee,stroke:#c62828,stroke-width:2.5px,color:#000;
-       classDef child fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000;
-       classDef rolebox fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,color:#000;
-       classDef costbox fill:#fff3e0,stroke:#e65100,stroke-width:1px,color:#000;
-       classDef protect fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#000;
-       classDef entbox fill:#e0f2f1,stroke:#00695c,stroke-width:1px,color:#000;
+flowchart TD
+    classDef root fill:#ffebee,stroke:#c62828,stroke-width:3px,color:#c62828;
+    classDef child fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000;
+    classDef theory fill:#f8f9fa,stroke:#ced4da,stroke-width:2px,color:#212529;
+    classDef highlight fill:#fff3e0,stroke:#e65100,stroke-width:2px,color:#e65100;
+    classDef secure fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20;
 
-       subgraph TOPO ["🧩 Mô hình Mạng STP 3 Switch (Trung tâm)"]
-           ROOT["Core Switch (Root Bridge)<br/>Bridge Priority = 24576<br/><b>📤 Mọi cổng đều là DP</b>"]:::root
-           DIST["Distribution Switch<br/><b>📥 Có 1 RP</b> duy nhất về Core"]:::child
-           ACC["Access Switch<br/><b>📥 1 RP + 🚫 1 BP</b> (khóa phá loop)"]:::child
-           ROOT ---|"📤 DP → 📥 RP"| DIST
-           DIST ---|"📤 DP → 🚫 BP (Blocked)"| ACC
-           ROOT ===|"📤 DP → 📤 DP (dự phòng)"| ACC
-       end
+    %% ================= MÔ HÌNH TRUNG TÂM =================
+    subgraph TOPO ["🧩 MÔ HÌNH TAM GIÁC STP (TOPOLOGY TRUNG TÂM)"]
+        direction TB
+        ROOT["👑 Core Switch (Root Bridge)<br/>Bridge Priority = 24576<br/><i>(Tất cả cổng đều là DP)</i>"]:::root
+        DIST["🏢 Distribution Switch<br/><i>Cost tới Root = 4</i>"]:::child
+        ACC["🖥️ Access Switch<br/><i>Cost tới Root = 4</i><br/>BID kém Dist → Bị khóa cổng"]:::child
 
-       subgraph ROOT_ELEC ["🏆 Lý thuyết nền: Bầu chọn Root Bridge"]
-           R1["BPDU (Bridge Protocol Data Unit) chứa Bridge ID"]
-           R2["Bridge ID = Priority (mặc định 32768, bước 4096) + MAC (6 byte)"]
-           R3["Switch có Bridge ID thấp nhất → Root Bridge"]
-           R4["⚔️ Luôn gán priority 24576 cho Core chính,<br/>28672 cho Core phụ — không để mặc định"]
-       end
+        ROOT <==>|"📤 DP (Forward) ────── 📥 RP (Root Port)"| DIST
+        ROOT <==>|"📤 DP (Forward) ────── 📥 RP (Root Port)"| ACC
+        DIST -.-x|"📤 DP (Forward) ────── 🚫 BP (Khóa để phá Loop)"| ACC
+    end
 
-       subgraph ROLES ["📋 3 Vai trò Cổng — Giải thích cho Topology bên trên"]
-           ROLES_RP["📥 Root Port (RP)<br/>• Cổng duy nhất về Root<br/>• Trên mỗi Non-Root Switch<br/>• Chọn: Path Cost → Neighbor BID → Port ID"]
-           ROLES_DP["📤 Designated Port (DP)<br/>• Cổng nói trên mỗi segment<br/>• Root Bridge: MỌI cổng là DP<br/>• Non-Root: cost thấp hơn → DP"]
-           ROLES_BP["🚫 Blocked/Alternate Port (BP)<br/>• Chỉ nhận BPDU, không gửi/nhận dữ liệu<br/>• Failover: đường chính đứt → Forwarding<br/>(STP ~30s, RSTP ~1-5s)"]
-       end
+    %% ================= LÝ THUYẾT NỀN TẢNG =================
+    subgraph ELEC ["🏆 1. Bầu chọn Root Bridge"]
+        direction TB
+        R1["<b>BPDU</b> mang Bridge ID (BID) trao đổi mỗi 2s"]:::theory
+        R2["<b>BID = Priority + MAC Address</b><br/>(Mặc định: 32768)"]:::theory
+        R3["Switch có <b>BID thấp nhất</b> → Root Bridge"]:::highlight
+        R1 ~~~ R2 ~~~ R3
+    end
 
-       subgraph COST ["📊 Path Cost — Yếu tố quyết định vai trò trên Topology"]
-           C1["10 Mbps → 100 (802.1D) / 2,000,000 (RSTP)"]
-           C2["100 Mbps → 19 / 200,000"]
-           C3["1 Gbps → 4 / 20,000 ← 🏆 Phổ biến"]
-           C4["10 Gbps → 2 / 2,000"]
-       end
+    subgraph ROLES ["📋 2. Bầu chọn Vai trò Cổng (Port Roles)"]
+        direction TB
+        ROLES_RP["📥 <b>Root Port (RP):</b> Cổng tốt nhất về Root.<br/><i>(Mỗi Non-Root Switch chỉ có 1 RP)</i>"]:::theory
+        ROLES_DP["📤 <b>Designated Port (DP):</b> Cổng đại diện Segment.<br/><i>(Root Bridge có 100% cổng là DP)</i>"]:::theory
+        ROLES_BP["🚫 <b>Blocked Port (BP):</b> Cổng bị khóa phá Loop.<br/><i>(Dự phòng: Mở lại khi đứt cáp chính)</i>"]:::highlight
+        ROLES_RP ~~~ ROLES_DP ~~~ ROLES_BP
+    end
 
-       subgraph SIMPLE ["💡 Hiểu đơn giản — Áp dụng vào Topology"]
-           S1["Cost thấp = đường nhanh = được ưu tiên chọn"]
-           S2["Distribution cost=4 vs Access cost=8 →<br/>Distribution gần Root hơn → DP bên Dist, BP bên Acc"]
-           S3["Đường Dist→Core đứt → BP bên Access tự Forward →<br/>Mạng tự phục hồi (dự phòng tự nhiên)"]
-       end
+    subgraph COST ["📊 3. Tính toán Path Cost (IEEE 802.1D / RSTP)"]
+        direction TB
+        C1["10 Mbps → Cost: 100 / 2,000,000"]:::theory
+        C2["100 Mbps → Cost: 19 / 200,000"]:::theory
+        C3["<b>1 Gbps → Cost: 4 / 20,000</b>"]:::highlight
+        C4["10 Gbps → Cost: 2 / 2,000"]:::theory
+        C1 ~~~ C2 ~~~ C3 ~~~ C4
+    end
 
-       subgraph MANUAL ["⚙️ Can thiệp Traffic Engineering"]
-           TE1["① <b>spanning-tree cost 100</b> — Tăng cost → STP loại cổng"]
-           TE2["② <b>spanning-tree port-priority 64</b> — Hạ priority → ưu tiên chọn"]
-           TE3["③ <b>spanning-tree vlan 20 cost 100</b> — Chia VLAN 10 qua Link 1, VLAN 20 qua Link 2 (cân tải)"]
-       end
+    %% ================= BẢO MẬT & TỐI ƯU =================
+    subgraph SECURE ["🛡️ 4. STP Security & Bảo vệ Cổng"]
+        direction TB
+        E1["⚡ <b>PortFast:</b> Bỏ qua Listening/Learning → Forwarding ngay.<br/><i>(Chỉ dùng cho cổng nối PC/Server)</i>"]:::secure
+        E2["🚫 <b>BPDU Guard:</b> Nhận BPDU lạ → Đưa cổng vào Err-Disable.<br/><i>(Tránh ai đó cắm Switch lạ vào mạng)</i>"]:::secure
+        F1["👑 <b>Root Guard:</b> Cấu hình trên DP của Core.<br/><i>(Chống Switch lạ tự xưng làm Root Bridge)</i>"]:::secure
+        F2["🔄 <b>Loop/UDLD Guard:</b> Tránh đứt cáp quang 1 chiều.<br/><i>(Chặn lỗi unidirectional link)</i>"]:::secure
+        E1 ~~~ E2 ~~~ F1 ~~~ F2
+    end
 
-       subgraph EDGE ["🛡️ Bảo vệ cổng Edge (Access)"]
-           E1["PortFast: Bỏ qua Listening/Learning → Forwarding ngay"]
-           E2["BPDU Guard: Nhận BPDU lạ → err-disable"]
-           E3["Auto recovery: spanning-tree recovery cause bpduguard + interval 300"]
-       end
+    subgraph ENTERPRISE ["🏢 5. Mô hình Doanh nghiệp (LACP & RSTP)"]
+        direction TB
+        ENT1["⚙️ <b>Rapid-PVST+ (802.1w):</b><br/>Chạy STP riêng cho từng VLAN. Hội tụ nhanh (1-5s)."]:::highlight
+        ENT2["🔗 <b>EtherChannel / LACP:</b><br/>Gộp nhiều cáp vật lý thành 1 Port-Channel logic.<br/><i>STP coi đây là 1 liên kết → Không bị khóa nhầm cổng.</i>"]:::highlight
+        ENT3["⚖️ <b>Traffic Engineering:</b><br/>VLAN 10 qua Link 1, VLAN 20 qua Link 2 (Cân bằng tải)."]:::highlight
+        ENT1 ~~~ ENT2 ~~~ ENT3
+    end
 
-       subgraph FIBER ["🔌 Bảo vệ Trunk & Cáp Quang"]
-           F1["Root Guard (trên DP của Core) — BPDU tốt hơn → root-inconsistent"]
-           F2["Loop Guard (trên RP/BP của Access) — Mất BPDU → loop-inconsistent"]
-           F3["UDLD Aggressive (cả 2 đầu cáp) — Mất tín hiệu → err-disabled"]
-           F4["⚠️ Root Guard & Loop Guard KHÔNG thể cấu hình cùng cổng"]
-       end
-
-       subgraph ENTERPRISE ["🏢 Mô hình Doanh nghiệp: StackWise + LACP"]
-           ENT1["Core Stack: Core-01 (Priority 24576) + Core-02 (Priority 28672)"]
-           ENT2["LACP Active: Gộp cổng vật lý → Port-Channel logic"]
-           ENT3["src-dst-ip Hash: Cân bằng tải trên các link"]
-           ENT4["Rapid-PVST+: STP riêng biệt cho từng VLAN"]
-       end
+    %% ================= KẾT NỐI BỐ CỤC =================
+    ELEC --> TOPO
+    ROLES --> TOPO
+    COST --> TOPO
+    TOPO --> SECURE
+    TOPO --> ENTERPRISE
    ```
 
 ##### Cấu hình Cisco Tham khảo
