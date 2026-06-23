@@ -202,121 +202,85 @@ Phương pháp này giúp kỹ sư kiểm tra trường `giaddr` (IP của gatew
 
 ##### L2 Loop Prevention: Spanning Tree Protocol (STP) & Link Aggregation (LACP)
 
-###### Kiến thức Lý thuyết Cisco Spanning Tree Protocol (STP / CCNA Reference)
-Để ngăn chặn vòng lặp gói tin ở Layer 2 (Layer 2 Loop) trong khi vẫn duy trì cấu trúc liên kết dự phòng (redundancy), STP xây dựng một cấu trúc cây logic không có vòng lặp (loop-free logical topology) qua các bước bầu chọn có thứ tự sau:
+###### Kiến thức Lý thuyết Cisco Spanning Tree Protocol (STP / CCNA Reference) — Tích hợp Toàn bộ
 
-1. **Bầu chọn Root Bridge (Root Bridge Election)**:
-   - Các switch trao đổi các gói tin **BPDU (Bridge Protocol Data Unit)** chứa **Bridge ID (BID)** của chúng.
-   - **Bridge ID (BID)** gồm 8 byte: **Bridge Priority** (2 byte, mặc định là `32768`, có thể cấu hình theo các bước tăng là `4096`) và **MAC Address** duy nhất của switch (6 byte).
-   - Switch có **Bridge ID (BID) thấp nhất** sẽ được bầu làm **Root Bridge**.
-   - > [!IMPORTANT]
-     > **Combat Note (Bảo vệ Root - Root Protection)**: Không bao giờ để Bridge Priority ở giá trị mặc định. Nếu một switch rẻ tiền của khách hàng hoặc switch cũ có địa chỉ MAC thấp được cắm vào mạng, nó có thể cướp quyền làm Root Bridge, định tuyến toàn bộ lưu lượng của doanh nghiệp qua nó và gây nghẽn hoặc rò rỉ dữ liệu. Luôn gán thủ công priority cho Core Switch chính là `24576` (`spanning-tree vlan X root primary`) và Core Switch phụ là `28672` (`spanning-tree vlan X root secondary`).
-
-2. **Bầu chọn các Vai trò Cổng (STP Port Roles Election: RP, DP, BP)**:
-   - Sau khi xác định được Root Bridge (Switch Vua), STP tiến hành phân chia vai trò cho từng cổng trên các switch để mở/khóa đường truyền một cách logic.
+Mô hình mạng STP 3 switch (Core / Distribution / Access) là trung tâm — các khối lý thuyết xung quanh đóng vai trò bổ trợ, giải thích cách mô hình vận hành:
    
-   ---
+   ```mermaid
+   graph TD
+       classDef root fill:#ffebee,stroke:#c62828,stroke-width:2.5px,color:#000;
+       classDef child fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#000;
+       classDef rolebox fill:#f5f5f5,stroke:#9e9e9e,stroke-width:1px,color:#000;
+       classDef costbox fill:#fff3e0,stroke:#e65100,stroke-width:1px,color:#000;
+       classDef protect fill:#f3e5f5,stroke:#6a1b9a,stroke-width:1px,color:#000;
+       classDef entbox fill:#e0f2f1,stroke:#00695c,stroke-width:1px,color:#000;
 
-   #### A. Root Port (RP - Cổng hướng về Root Bridge)
-   * **Định nghĩa lý thuyết**: Là cổng có tổng chi phí đường truyền tích lũy (Root Path Cost) về Root Bridge thấp nhất trên mỗi switch không phải Root. Mỗi switch con chỉ có duy nhất **một** Root Port.
-   * **Định nghĩa dễ hiểu**: Cửa ngõ ngắn nhất, rẻ nhất để một switch con đi báo cáo dữ liệu về Switch Vua.
-   * **Mẹo nhớ CCNA**: Cực đối diện (đầu bên kia của sợi cáp) kết nối với cổng Root Port (RP) **luôn luôn** là cổng Designated Port (DP).
-   * **Quy tắc chọn & Phá vỡ thế hòa (Tie-breaker)**:
-     1. Chọn cổng có tổng Path Cost về Root Bridge thấp nhất.
-        - **Bảng Chi phí Đường truyền (IEEE 802.1D)**:
-          * **10 Mbps**: Cost = `100` | **100 Mbps**: Cost = `19` | **1 Gbps**: Cost = `4` | **10 Gbps**: Cost = `2`
-          * *Lưu ý (RSTP 32-bit)*: 1 Gbps cost = `20,000`, 10 Gbps cost = `2,000`.
-     2. **Nếu cắm song song 2 dây (Dual Links)** như hình bên dưới: Chi phí bằng nhau, switch con sẽ chọn cổng kết nối tới cổng có **Bridge ID của switch gửi thấp nhất** (trong trường hợp này là cùng một switch Core đối diện, nên bằng nhau).
-     3. Tiếp tục so sánh cổng nào nối với cổng có **Port Priority của switch gửi thấp nhất** (mặc định là `128`).
-     4. Cuối cùng, chọn cổng nối với cổng có **Port ID của switch gửi thấp nhất** (ví dụ: cổng nối với `Gi1/0/1` của Core Switch sẽ được chọn thay vì `Gi1/0/2`). Cổng còn lại sẽ bị khóa.
-     
-     ```mermaid
-     graph TD
-         classDef root fill:#ffebee,stroke:#c62828,stroke-width:2px;
-         classDef nonroot fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
-         
-         subgraph Core ["Core Switch (Root Bridge)"]
-             C1["Gi1/0/1 (DP - Luôn mở)"]:::root
-             C2["Gi1/0/2 (DP - Luôn mở)"]:::root
-         end
-         
-         subgraph Access ["Access Switch"]
-             A1["Gi1/0/1 (RP - Cổng Root)"]:::nonroot
-             A2["Gi1/0/2 (BP - Cổng Khóa)"]:::nonroot
-         end
-         
-         C1 ===|"Link 1 (Đường chính vì nối với Gi1/0/1)"| A1
-         C2 -.-|"Link 2 (Bị Block vì nối với Gi1/0/2)"| A2
-     ```
+       subgraph TOPO ["🧩 Mô hình Mạng STP 3 Switch (Trung tâm)"]
+           ROOT["Core Switch (Root Bridge)<br/>Bridge Priority = 24576<br/><b>📤 Mọi cổng đều là DP</b>"]:::root
+           DIST["Distribution Switch<br/><b>📥 Có 1 RP</b> duy nhất về Core"]:::child
+           ACC["Access Switch<br/><b>📥 1 RP + 🚫 1 BP</b> (khóa phá loop)"]:::child
+           ROOT ---|"📤 DP → 📥 RP"| DIST
+           DIST ---|"📤 DP → 🚫 BP (Blocked)"| ACC
+           ROOT ===|"📤 DP → 📤 DP (dự phòng)"| ACC
+       end
 
-   ---
+       subgraph ROOT_ELEC ["🏆 Lý thuyết nền: Bầu chọn Root Bridge"]
+           R1["BPDU (Bridge Protocol Data Unit) chứa Bridge ID"]
+           R2["Bridge ID = Priority (mặc định 32768, bước 4096) + MAC (6 byte)"]
+           R3["Switch có Bridge ID thấp nhất → Root Bridge"]
+           R4["⚔️ Luôn gán priority 24576 cho Core chính,<br/>28672 cho Core phụ — không để mặc định"]
+       end
 
-   #### B. Designated Port (DP - Cổng đại diện/chuyển tiếp)
-   * **Định nghĩa lý thuyết**: Là cổng chịu trách nhiệm chuyển tiếp gói tin (Forwarding) trên một phân đoạn mạng (segment) về phía Root Bridge với chi phí thấp nhất.
-   * **Định nghĩa dễ hiểu**: Trên mỗi sợi cáp nối giữa 2 switch, bắt buộc phải có duy nhất **một** cổng làm "trưởng đường" để truyền dữ liệu. Đầu còn lại của sợi cáp nếu không phải là cổng Root (RP) thì sẽ bị khóa để phá vòng lặp.
-   * **Quy tắc chọn**:
-     1. Tất cả các cổng đang hoạt động trên **Root Bridge** luôn luôn là Designated Port (DP) - luôn ở trạng thái Forwarding.
-     2. Trên sợi cáp nối giữa hai switch con: Switch nào gần Root Bridge hơn (tổng cost nhỏ hơn) thì cổng của switch đó làm DP (mở). Cổng đầu đối diện của switch kia sẽ bị khóa.
-     
-     ```mermaid
-     graph TD
-         classDef root fill:#ffebee,stroke:#c62828,stroke-width:2px;
-         classDef switch fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
-         
-         Root["Root Bridge (Switch Vua)"]:::root
-         SWA["Switch A (Gần Root - Cost 4)"]:::switch
-         SWB["Switch B (Xa Root - Cost 8)"]:::switch
-         
-         Root ===|"DP <---> RP (Cost 4)"| SWA
-         Root ===|"DP <---> RP (Cost 4)"| SWB
-         SWA ===|"DP (Mở)"| SWB
-         SWB -.-|"BP (Khóa)"| SWA
-         
-         linkStyle 2 stroke:#2ecc71,stroke-width:2px;
-         linkStyle 3 stroke:#e74c3c,stroke-width:2px,stroke-dasharray: 5 5;
-     ```
+       subgraph ROLES ["📋 3 Vai trò Cổng — Giải thích cho Topology bên trên"]
+           ROLES_RP["📥 Root Port (RP)<br/>• Cổng duy nhất về Root<br/>• Trên mỗi Non-Root Switch<br/>• Chọn: Path Cost → Neighbor BID → Port ID"]
+           ROLES_DP["📤 Designated Port (DP)<br/>• Cổng nói trên mỗi segment<br/>• Root Bridge: MỌI cổng là DP<br/>• Non-Root: cost thấp hơn → DP"]
+           ROLES_BP["🚫 Blocked/Alternate Port (BP)<br/>• Chỉ nhận BPDU, không gửi/nhận dữ liệu<br/>• Failover: đường chính đứt → Forwarding<br/>(STP ~30s, RSTP ~1-5s)"]
+       end
 
-   ---
+       subgraph COST ["📊 Path Cost — Yếu tố quyết định vai trò trên Topology"]
+           C1["10 Mbps → 100 (802.1D) / 2,000,000 (RSTP)"]
+           C2["100 Mbps → 19 / 200,000"]
+           C3["1 Gbps → 4 / 20,000 ← 🏆 Phổ biến"]
+           C4["10 Gbps → 2 / 2,000"]
+       end
 
-   #### C. Blocked Port (BP - Cổng khóa / Alternate Port)
-   * **Định nghĩa lý thuyết**: Là bất kỳ cổng nào không được chọn làm Root Port hay Designated Port. Cổng này sẽ bị đưa vào trạng thái Blocking (hoặc Discarding trong RSTP) để ngắt đứt vòng lặp logic.
-   * **Định nghĩa dễ hiểu**: Cổng dự phòng, bị khóa tạm thời để tránh nghẽn mạng. Cổng này vẫn lắng nghe gói tin BPDU để sẵn sàng mở ra nếu đường chính gặp sự cố.
+       subgraph SIMPLE ["💡 Hiểu đơn giản — Áp dụng vào Topology"]
+           S1["Cost thấp = đường nhanh = được ưu tiên chọn"]
+           S2["Distribution cost=4 vs Access cost=8 →<br/>Distribution gần Root hơn → DP bên Dist, BP bên Acc"]
+           S3["Đường Dist→Core đứt → BP bên Access tự Forward →<br/>Mạng tự phục hồi (dự phòng tự nhiên)"]
+       end
 
-   ---
+       subgraph MANUAL ["⚙️ Can thiệp Traffic Engineering"]
+           TE1["① <b>spanning-tree cost 100</b> — Tăng cost → STP loại cổng"]
+           TE2["② <b>spanning-tree port-priority 64</b> — Hạ priority → ưu tiên chọn"]
+           TE3["③ <b>spanning-tree vlan 20 cost 100</b> — Chia VLAN 10 qua Link 1, VLAN 20 qua Link 2 (cân tải)"]
+       end
 
-   > [!TIP]
-   > **Thực hành Điều phối lưu lượng thủ công (Manual Traffic Engineering / STP Cost & Priority Tuning)**:
-   > Trong mô hình cắm song song 2 dây (Dual Links) ở trên, mặc định Link 1 sẽ mở (Forwarding) và Link 2 bị khóa (Blocking). Nếu bạn muốn đổi ngược lại (sử dụng Link 2 làm đường truyền chính và Link 1 làm dự phòng/backup), ta cấu hình như sau:
-   > 
-   > * **Cách 1: Điều chỉnh Path Cost (Cấu hình trên Access Switch - Switch nhận)**:
-   >   Tăng chi phí của cổng muốn khóa để STP loại trừ nó.
-   >   ```cisco
-   >   Access-Switch(config)# interface GigabitEthernet1/0/1
-   >   Access-Switch(config-if)# spanning-tree cost 100        ! Tăng cost lên 100 (mặc định là 19). Access Switch sẽ khóa cổng Gi1/0/1.
-   >   ```
-   > 
-   > * **Cách 2: Điều chỉnh Port Priority (Cấu hình trên Core Switch - Switch gửi)**:
-   >   Hạ giá trị priority của cổng muốn mở trên switch đối diện (giá trị nhỏ hơn được ưu tiên).
-   >   ```cisco
-   >   Core-Switch(config)# interface GigabitEthernet1/0/2
-   >   Core-Switch(config-if)# spanning-tree port-priority 64   ! Hạ xuống 64 (mặc định là 128). Access Switch sẽ mở cổng Gi1/0/2 làm RP.
-   >   ```
-   > 
-   > * **Cách 3: Chia tải theo VLAN (Thực tế doanh nghiệp thường dùng)**:
-   >   Cho VLAN 10 đi qua Link 1 và VLAN 20 đi qua Link 2 để tận dụng tối đa băng thông cả 2 đường:
-   >   ```cisco
-   >   Access-Switch(config)# interface GigabitEthernet1/0/1
-   >   Access-Switch(config-if)# spanning-tree vlan 20 cost 100   ! Khóa VLAN 20 trên Link 1 (VLAN 10 đi qua Link 1)
-   >   
-   >   Access-Switch(config)# interface GigabitEthernet1/0/2
-   >   Access-Switch(config-if)# spanning-tree vlan 10 cost 100   ! Khóa VLAN 10 trên Link 2 (VLAN 20 đi qua Link 2)
-   >   ```
+       subgraph EDGE ["🛡️ Bảo vệ cổng Edge (Access)"]
+           E1["PortFast: Bỏ qua Listening/Learning → Forwarding ngay"]
+           E2["BPDU Guard: Nhận BPDU lạ → err-disable"]
+           E3["Auto recovery: spanning-tree recovery cause bpduguard + interval 300"]
+       end
 
-    - > [!IMPORTANT]
-      > **Combat Note (Bảo mật cổng Edge - Edge Security)**: Các access port kết nối trực tiếp đến máy người dùng phải được cấu hình **PortFast** và bật **BPDU Guard**. PortFast giúp cổng bỏ qua các trạng thái Listening/Learning để chuyển thẳng sang Forwarding ngay lập tức khi cắm cáp. BPDU Guard sẽ tự động đưa cổng vào trạng thái `err-disabled` (tắt cổng) nếu phát hiện thiết bị switch lạ cắm vào và gửi gói tin BPDU.
+       subgraph FIBER ["🔌 Bảo vệ Trunk & Cáp Quang"]
+           F1["Root Guard (trên DP của Core) — BPDU tốt hơn → root-inconsistent"]
+           F2["Loop Guard (trên RP/BP của Access) — Mất BPDU → loop-inconsistent"]
+           F3["UDLD Aggressive (cả 2 đầu cáp) — Mất tín hiệu → err-disabled"]
+           F4["⚠️ Root Guard & Loop Guard KHÔNG thể cấu hình cùng cổng"]
+       end
 
+       subgraph ENTERPRISE ["🏢 Mô hình Doanh nghiệp: StackWise + LACP"]
+           ENT1["Core Stack: Core-01 (Priority 24576) + Core-02 (Priority 28672)"]
+           ENT2["LACP Active: Gộp cổng vật lý → Port-Channel logic"]
+           ENT3["src-dst-ip Hash: Cân bằng tải trên các link"]
+           ENT4["Rapid-PVST+: STP riêng biệt cho từng VLAN"]
+       end
+   ```
+
+##### Cấu hình Cisco Tham khảo
+
+###### Edge Port Security (Cổng Access Biên)
 ```cisco
-! --- Cisco Switch Edge Port Security Configuration ---
 interface GigabitEthernet1/0/24
  description USER-PC-ACCESS
  switchport mode access
@@ -325,6 +289,23 @@ interface GigabitEthernet1/0/24
  spanning-tree bpduguard enable
  spanning-tree recovery cause bpduguard   ! Tự động khôi phục cổng err-disabled
  spanning-tree recovery interval 300      ! Khôi phục sau 5 phút (300 giây)
+```
+
+###### Trunk & Fiber Protection (Bảo vệ Đường Trunk & Cáp Quang)
+```cisco
+! --- Cấu hình trên Core Switch (Cổng hướng xuống) ---
+interface GigabitEthernet1/0/1
+ description TO-ACCESS-SWITCH-01
+ switchport mode trunk
+ spanning-tree guard root                  ! Bật Root Guard (Ngăn cướp ngôi Root)
+ udld port aggressive                      ! Bật UDLD (Chống đứt cáp 1 chiều)
+
+! --- Cấu hình trên Access Switch (Cổng hướng lên) ---
+interface GigabitEthernet1/0/1
+ description TO-CORE-SWITCH
+ switchport mode trunk
+ spanning-tree guard loop                  ! Bật Loop Guard (Chống Loop khi mất BPDU)
+ udld port aggressive                      ! Bật UDLD (Chống đứt cáp 1 chiều)
 ```
 
 ##### Battle-Tested Spanning Tree Diagnostics & Fiber Failover Safeguards (Quy trình Debug CLI & Khôi phục sự cố)
@@ -416,126 +397,6 @@ Khi xảy ra Layer 2 Loop hoặc bão broadcast (Broadcast Storm), CPU của swi
   Switch(config)# lldp run                 ! Kích hoạt giao thức LLDP trên toàn bộ switch
   Switch# show lldp neighbors              ! Xem chi tiết thiết bị lân cận không thuộc Cisco (như AP UniFi, server...)
   ```
-
-###### 4. Bảo vệ Đường Trunk và Cáp Quang (Trunk & Fiber Protection)
-
-Để bảo vệ hệ thống khỏi các mối đe dọa làm mất ổn định STP hoặc lỗi vật lý cáp quang đứt một chiều (unidirectional link), Cisco cung cấp ba cơ chế bảo mật quan trọng.
-
-> [!WARNING]
-> **Lưu ý quan trọng về thiết kế (Quy tắc loại trừ tương hỗ)**: `Root Guard` và `Loop Guard` **không thể** cấu hình đồng thời trên cùng một cổng vì chúng có mục đích hoạt động hoàn toàn trái ngược nhau:
-> - **Root Guard**: Dành riêng cho cổng truyền dữ liệu đi hướng xuống switch con (**Designated Port - DP**).
-> - **Loop Guard**: Dành riêng cho cổng nhận dữ liệu về hoặc cổng chặn hướng lên switch cha (**Root Port - RP** hoặc **Blocked Port - BP**).
-
-```mermaid
-graph TD
-    classDef root fill:#ffebee,stroke:#c62828,stroke-width:2.5px;
-    classDef access fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
-    
-    subgraph Core_Switch ["Core Switch (Root Bridge)"]
-        Core_Gi1_1["Gi1/0/1 (DP - Designated Port)"]:::root
-    end
-
-    subgraph Access_Switch ["Access Switch (Switch Nhánh)"]
-        Acc_Gi1_1["Gi1/0/1 (RP - Root Port)"]:::access
-    end
-
-    Core_Gi1_1 ===|"Cáp Quang Trunk (Gi1/0/1)<br/>Cực Core: Bật Root Guard<br/>Cực Access: Bật Loop Guard + UDLD"| Acc_Gi1_1
-
-    linkStyle 0 stroke:#2ecc71,stroke-width:2.5px;
-```
-
-* **Root Guard (Bảo vệ ngôi Root)**:
-  * **Tại sao cần?** Ngăn chặn một switch lạ hoặc switch cũ có Bridge Priority cao hơn cắm vào mạng access và cướp quyền làm Root Bridge (làm đảo lộn đường đi của toàn bộ traffic).
-  * **Cách hoạt động**: Cấu hình trên cổng hướng xuống của Core Switch. Nếu cổng này nhận được gói tin BPDU tốt hơn (superior BPDU), nó sẽ tự động đưa cổng vào trạng thái `root-inconsistent` (tạm khóa). Khi rút switch lạ ra, cổng tự động khôi phục.
-  * **Vị trí cấu hình**: Cổng Designated Port (DP) hướng xuống của Core/Distribution Switch.
-
-* **Loop Guard (Chống Loop khi mất BPDU)**:
-  * **Tại sao cần?** Trên đường trunk cáp quang, thỉnh thoảng xảy ra lỗi đứt một chiều (đứt đường nhận Rx, nhưng đường truyền Tx vẫn sáng). Lúc này, Access Switch không nhận được BPDU nữa nên nghĩ là mạng không có loop và tự động chuyển cổng Blocked thành Forwarding, tạo ra vòng lặp Layer 2 hủy diệt.
-  * **Cách hoạt động**: Nếu cổng đột ngột ngừng nhận BPDU, thay vì chuyển sang trạng thái Forwarding, Loop Guard sẽ khóa cổng đó lại ở trạng thái `loop-inconsistent`.
-  * **Vị trí cấu hình**: Cổng Root Port (RP) hoặc Alternate/Blocked Port (BP) trên Access Switch.
-
-* **UDLD Aggressive (Phát hiện đứt cáp vật lý một chiều)**:
-  * **Tại sao cần?** Hoạt động ở lớp vật lý để chủ động phát hiện cáp quang bị lỗi đứt một chiều bằng cách trao đổi gói tin ping định kỳ.
-  * **Cách hoạt động**: Nếu đầu bên kia không phản hồi sau vài giây, nó sẽ tắt cứng cổng vật lý đó và đưa vào trạng thái `err-disabled`.
-  * **Vị trí cấu hình**: Cấu hình ở cả hai đầu của đường truyền cáp quang.
-
-```cisco
-! ==========================================
-! CẤU HÌNH TRÊN CORE SWITCH (Cổng hướng xuống)
-! ==========================================
-interface GigabitEthernet1/0/1
- description TO-ACCESS-SWITCH-01
- switchport mode trunk
- spanning-tree guard root                  ! Bật Root Guard (Ngăn cướp ngôi Root)
- udld port aggressive                      ! Bật UDLD (Chống đứt cáp 1 chiều vật lý)
-
-! ==========================================
-! CẤU HÌNH TRÊN ACCESS SWITCH (Cổng hướng lên)
-! ==========================================
-interface GigabitEthernet1/0/1
- description TO-CORE-SWITCH
- switchport mode trunk
- spanning-tree guard loop                  ! Bật Loop Guard (Chống Loop khi mất BPDU)
- udld port aggressive                      ! Bật UDLD (Chống đứt cáp 1 chiều vật lý)
-```
-
-##### Cisco Switch Spanning Tree & EtherChannel Link Aggregation
-
-Sơ đồ dưới đây mô phỏng kiến trúc mạng doanh nghiệp thực tế sử dụng công nghệ **Cisco StackWise** tại lớp Core, **LACP EtherChannel** để tăng băng thông và dự phòng cổng vật lý, kết hợp **Rapid-PVST+** để phá vòng lặp tại lớp Access:
-
-```mermaid
-graph TD
-    classDef root fill:#e3f2fd,stroke:#0d47a1,stroke-width:2.5px,color:#0d47a1;
-    classDef switch fill:#eceff1,stroke:#37474f,stroke-width:2px;
-    classDef host fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px;
-
-    %% SWITCH NODE DEFINITIONS
-    subgraph Core_Stack ["Cụm Switch Core Cisco (Logical Root Bridge)"]
-        Core01["Core-01 (Root Chính)<br/>Priority: 24576"]:::root
-        Core02["Core-02 (Root Dự Phòng)<br/>Priority: 28672"]:::switch
-        Core01 ---|StackWise Link| Core02
-    end
-
-    subgraph Access_Layer ["Lớp Switch Access (Các Switch Độc Lập)"]
-        Access01["Access-Switch-01<br/>Priority: 32768"]:::switch
-        Access02["Access-Switch-02<br/>Priority: 32768"]:::switch
-    end
-
-    subgraph Server_Farm ["Phân khu Máy chủ VM"]
-        ESXi["ESXi Host (vmnic0 & vmnic1)"]:::host
-    end
-
-    %% LINKS & PORT-CHANNELS
-    %% Uplink from Access-01 to Core Stack (LACP Port-Channel 1)
-    Access01 == "LACP Port-Channel 1 - Chuyển tiếp (Forwarding)" ==> Core01
-    Access01 == "LACP Port-Channel 1 - Chuyển tiếp (Forwarding)" ==> Core02
-    
-    %% Uplink from Access-02 to Core Stack (LACP Port-Channel 2)
-    Access02 == "LACP Port-Channel 2 - Chuyển tiếp (Forwarding)" ==> Core01
-    Access02 == "LACP Port-Channel 2 - Chuyển tiếp (Forwarding)" ==> Core02
-
-    %% Redundant Link between Access Switches (Forms Loop, Blocked by STP)
-    Access01 -. "DP (Forwarding) --- AP/BP (Blocked)" .- Access02
-
-    %% ESXi Host connection to Access-01 using Port-Channel 10
-    ESXi == "LACP Port-Channel 10 (vmnic0 + vmnic1)" ==> Access01
-
-    %% Styling
-    style Core01 fill:#e3f2fd,stroke:#0d47a1,stroke-width:2.5px;
-    style Core02 fill:#eceff1,stroke:#37474f,stroke-width:2px;
-    style Access01 fill:#eceff1,stroke:#37474f,stroke-width:2px;
-    style Access02 fill:#eceff1,stroke:#37474f,stroke-width:2px;
-    linkStyle 5 stroke:#c62828,stroke-width:2px,stroke-dasharray: 5 5;
-```
-
-##### Chi tiết Kỹ thuật (Technical Details)
-| Thành phần / Khái niệm | Công nghệ | Mô tả |
-| :--- | :--- | :--- |
-| **Spanning Tree Protocol** | **Cisco Rapid-PVST+** | Giao thức Rapid Per-VLAN Spanning Tree bầu chọn Root Bridge và chặn các đường truyền lặp trong phần giây. |
-| **Bảo vệ vòng lặp** | **BPDU Guard & PortFast** | Tự động tắt (err-disable) các cổng access biên nếu nhận được BPDU, ngăn loop do cắm switch lạ. |
-| **Bảo vệ Trunk** | **Root Guard & Loop Guard** | Bảo vệ các đường trunk trước các đợt cướp Root Bridge hoặc loop do đứt một chiều cáp Rx. |
-| **Gộp cổng vật lý** | **LACP (802.3ad)** | Gộp các cổng vật lý thành một liên kết logic Port-Channel để tăng băng thông và dự phòng. |
-| **Cân bằng tải** | **src-dst-ip Hash** | Thuật toán phân chia gói tin qua các link trong EtherChannel dựa trên IP nguồn và IP đích. |
 
 ---
 
