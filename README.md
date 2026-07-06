@@ -95,6 +95,11 @@
   <br />
   [Project overview](./SDN/README.md) | [Main report](./SDN/Report/CP_Report_ver5.pdf) | [Configs](./SDN/configure/) | [Source code](./SDN/DevCode/)
 
+- **TapViet Studio — Trình tạo vở tập viết ô ly tiểu học**
+  Ứng dụng web tạo vở luyện viết chữ cho học sinh tiểu học với font chữ chuẩn Bộ GD, hỗ trợ in ấn và xuất PDF.
+  <br />
+  [🌐 Truy cập ứng dụng](https://tanpham380.github.io/tapviet-studio/) | [📦 Source code](https://github.com/tanpham380/tapviet-studio)
+
 - **More repositories**
   Explore additional labs and projects on [my GitHub repositories](https://github.com/tanpham380?tab=repositories).
 
