@@ -51,13 +51,21 @@
       overflow-x: hidden;
     }
 
+    /* KHUNG CHỨNG TO & NGANG, TỰ ĐỘNG SCALE THEO MÀN HÌNH */
+    #app-shell {
+      transform-origin: top center;
+      transform: scale(1);
+      width: 960px;
+      will-change: transform;
+    }
+
     /* THANH CÔNG CỤ TÙY BIẾN RETRO */
     .retro-toolbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       width: 100%;
-      max-width: 450px;
+      max-width: 960px;
       margin-bottom: 12px;
       gap: 6px;
       flex-wrap: wrap;
@@ -92,7 +100,7 @@
     /* MÀN HÌNH CHÍNH PIXEL TERMINAL */
     .retro-screen {
       width: 100%;
-      max-width: 450px;
+      max-width: 960px;
       background-color: var(--bg-black);
       border-radius: 10px;
       box-shadow: 
@@ -528,6 +536,9 @@
   </style>
 </head>
 <body>
+
+  <!-- Khung chứa toàn bộ app (to & ngang, tự động scale) -->
+  <div id="app-shell">
 
   <!-- Thanh công cụ retro phía trên -->
   <div class="retro-toolbar">
@@ -1763,7 +1774,23 @@
 
     window.addEventListener("resize", () => {
       setupCanvasFX();
+      scaleApp();
     });
+
+    // Tự động thu/phóng toàn bộ app cho vừa màn hình (to & ngang)
+    function scaleApp() {
+      const shell = document.getElementById("app-shell");
+      if (!shell) return;
+      const target = 1000; // độ rộng thiết kế gốc của app
+      const pad = 32;
+      const avail = Math.min(window.innerWidth - pad, window.innerHeight - pad);
+      const s = Math.max(0.4, Math.min(1.4, avail / target));
+      shell.style.transform = `scale(${s.toFixed(3)})`;
+    }
+    scaleApp();
   </script>
+  </div>
+  <!-- /app-shell -->
+
 </body>
 </html>
