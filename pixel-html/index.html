@@ -132,6 +132,44 @@
       display: none;
     }
 
+    /* MÀN HÌNH CHỜ KHỞI ĐỘNG (autoplay browser policy) */
+    .start-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 30;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(3, 4, 7, 0.82);
+      backdrop-filter: blur(2px);
+      cursor: pointer;
+      transition: opacity 0.35s ease;
+      text-align: center;
+      padding: 20px;
+    }
+    .start-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .start-overlay .start-title {
+      color: var(--term-cyan);
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-shadow: 0 0 12px rgba(78, 168, 222, 0.6);
+    }
+    .start-overlay .start-hint {
+      color: var(--term-gray);
+      font-size: 0.72rem;
+      animation: startPulse 1.4s infinite alternate;
+    }
+    @keyframes startPulse {
+      from { opacity: 0.4; }
+      to { opacity: 1; }
+    }
+
     /* 1. SÂN KHẤU PIXEL NỀN ĐÊM */
     .pixel-stage {
       height: 250px;
@@ -533,7 +571,13 @@
     <div class="pixel-stage" id="stage-wrapper" title="Nhấp vào sân khấu hoặc nhân vật để tương tác!">
       <!-- Canvas vẽ sao lấp lánh, sao băng, đom đóm và cánh hoa đào rơi -->
       <canvas class="fx-canvas" id="fx-canvas"></canvas>
-      
+
+      <!-- Màn hình chờ khởi động âm thanh (autoplay browser policy) -->
+      <div class="start-overlay" id="start-overlay">
+        <div class="start-title">♪ Pixel Karaoke ♪</div>
+        <div class="start-hint">Nhấn vào đây để bật nhạc nhé!</div>
+      </div>
+
       <div class="pixel-moon"></div>
 
       <!-- Cây thông Pixel -->
@@ -949,7 +993,8 @@
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       }
       if (audioCtx.state === "suspended") {
-        audioCtx.resume();
+        const p = audioCtx.resume();
+        if (p && typeof p.then === "function") p.catch(() => {});
       }
       return audioCtx;
     }
@@ -1697,6 +1742,23 @@
       document.body.addEventListener("pointerdown", () => {
         getAudioCtx();
       }, { once: true });
+
+      // Tự động cố gắng kích hoạt âm thanh khi tải trang (browser autoplay policy)
+      const resumeOnLoad = () => getAudioCtx();
+      resumeOnLoad();
+      ["click", "keydown", "touchstart"].forEach((evt) =>
+        document.addEventListener(evt, resumeOnLoad, { once: true })
+      );
+
+      // Bấm vào màn hình chờ để bật âm thanh ngay lập tức
+      const startOverlay = document.getElementById("start-overlay");
+      if (startOverlay) {
+        startOverlay.addEventListener("click", () => {
+          getAudioCtx();
+          startOverlay.classList.add("hidden");
+          setTimeout(() => startOverlay.remove(), 400);
+        });
+      }
     });
 
     window.addEventListener("resize", () => {
