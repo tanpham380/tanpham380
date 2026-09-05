@@ -106,6 +106,8 @@
 - **Real-world use cases (Experiment Lab)**
   Place practical scenarios, PoCs, and architecture tests in [experiment](./experiment/) to keep the profile clean while showing hands-on depth.
 
+<iframe src="https://tanpham380.github.io/tanpham380/pixel-html/" width="100%" height="700" frameborder="0" style="border-radius:12px; border:1px solid #1c2333;" allow="autoplay"></iframe>
+
 ---
 
 ## GitHub Analytics
@@ -121,10 +123,6 @@
     <img height="165" src="https://github-readme-stats.vercel.app/api/top-langs/?username=tanpham380&layout=compact&langs_count=8&card_width=320&theme=tokyonight&hide_border=true" alt="Top Languages" />
   </a> -->
 </p>
-
----
-
-<iframe src="https://tanpham380.github.io/tanpham380/pixel-html/" width="100%" height="700" frameborder="0" style="border-radius:12px; border:1px solid #1c2333;" allow="autoplay"></iframe>
 
 ---
 
