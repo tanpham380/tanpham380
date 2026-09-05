@@ -515,6 +515,9 @@
     <button class="tool-btn" id="btn-restart">
       <span>🔄</span> Phát lại
     </button>
+    <button class="tool-btn" id="btn-random">
+      <span>🔀</span> Ngẫu nhiên
+    </button>
     <input type="file" id="custom-audio-input" accept="audio/*">
   </div>
 
@@ -912,6 +915,8 @@
     // Bài hát đang được chọn (mặc định bài 1)
     let currentSongIndex = 0;
     let lyricsData = SONGS[currentSongIndex].lines;
+    // Chế độ phát ngẫu nhiên: khi hết bài sẽ chọn bài kế tiếp ngẫu nhiên
+    let isRandom = false;
 
     /* ==========================================================
        2b. TỰ ĐỘNG CO GIÃN LỜI THEO ĐỘ DÀI NHẠC THỰC TẾ
@@ -1394,6 +1399,21 @@
       }
     }
 
+    function playNextSong() {
+      // Chọn bài kế tiếp: ngẫu nhiên nếu bật chế độ, không thì bài kế tiếp theo thứ tự
+      let nextIndex;
+      if (isRandom) {
+        do {
+          nextIndex = Math.floor(Math.random() * SONGS.length);
+        } while (SONGS.length > 1 && nextIndex === currentSongIndex);
+      } else {
+        nextIndex = (currentSongIndex + 1) % SONGS.length;
+      }
+      songSelectEl.value = String(nextIndex);
+      selectSong(nextIndex);
+      showToast(`▶ Bài tiếp theo: ${SONGS[nextIndex].title}${isRandom ? " (ngẫu nhiên)" : ""}`);
+    }
+
     function mainEngine(timestamp) {
       if (!lastTime) lastTime = timestamp;
       const delta = (timestamp - lastTime) / 1000;
@@ -1409,6 +1429,8 @@
         } else {
           currentTime += delta;
           if (currentTime >= SONG_DURATION) {
+            // Hết bài: phát tiếp bài tiếp theo (ngẫu nhiên nếu bật chế độ này)
+            playNextSong();
             currentTime = 0;
             playedNotesMap = {};
           }
@@ -1457,6 +1479,14 @@
     }
 
     btnPlay.addEventListener("click", togglePlayback);
+
+    // Bật/Tắt chế độ phát ngẫu nhiên (hết bài sẽ chọn bài kế tiếp)
+    const btnRandom = document.getElementById("btn-random");
+    btnRandom.addEventListener("click", () => {
+      isRandom = !isRandom;
+      btnRandom.classList.toggle("active", isRandom);
+      showToast(isRandom ? "🔀 Ngẫu nhiên: Bật (chọn bài tiếp theo)" : "🔀 Ngẫu nhiên: Tắt");
+    });
 
     // Bật/Tắt âm thanh 8-Bit
     btnSound.addEventListener("click", () => {
