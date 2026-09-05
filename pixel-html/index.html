@@ -51,9 +51,9 @@
       overflow-x: hidden;
     }
 
-    /* KHUNG CHỨNG TO & NGANG, TỰ ĐỘNG SCALE THEO MÀN HÌNH */
+    /* KHUNG FULL MÀN HÌNH, TỰ ĐỘNG SCALE THEO MÀN HÌNH */
     #app-shell {
-      transform-origin: top center;
+      transform-origin: center center;
       transform: scale(1);
       width: 960px;
       will-change: transform;
@@ -1777,14 +1777,17 @@
       scaleApp();
     });
 
-    // Tự động thu/phóng toàn bộ app cho vừa màn hình (to & ngang)
+    // Tự động thu/phóng toàn bộ app cho FULL MÀN HÌNH (ngang & cao)
     function scaleApp() {
       const shell = document.getElementById("app-shell");
       if (!shell) return;
-      const target = 1000; // độ rộng thiết kế gốc của app
-      const pad = 32;
-      const avail = Math.min(window.innerWidth - pad, window.innerHeight - pad);
-      const s = Math.max(0.4, Math.min(1.4, avail / target));
+      const targetW = 1000; // độ rộng thiết kế gốc
+      const targetH = 1100; // độ cao thiết kế gốc
+      const padX = 16, padY = 16;
+      const sW = (window.innerWidth - padX) / targetW;
+      const sH = (window.innerHeight - padY) / targetH;
+      // lấy scale nhỏ nhất để vừa cả ngang và dọc, không giới hạn trên
+      const s = Math.max(0.3, Math.min(sW, sH));
       shell.style.transform = `scale(${s.toFixed(3)})`;
     }
     scaleApp();
