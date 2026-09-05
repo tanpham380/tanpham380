@@ -132,8 +132,16 @@
   </a>
 </p>
 
+---
 
+## 🎤 Pixel Karaoke — Gói Con Tim Làm Quà
 
+<p align="center">
+  <a href="https://tanpham380.github.io/tanpham380/pixel-html/" target="_blank">
+    <img src="https://img.shields.io/badge/View-Demo-4ea8de?style=for-the-badge&logo=musicbrainz&logoColor=white" alt="View Demo" />
+  </a>
+</p>
 
+<iframe src="https://tanpham380.github.io/tanpham380/pixel-html/" width="100%" height="700" frameborder="0" style="border-radius:12px; border:1px solid #1c2333;" allow="autoplay"></iframe>
 
-
+Karaoke pixel-art retro 8-bit: nhân vật robot trao hoa, lời bài hát highlight theo nhạc, hiệu ứng sao băng/đom đóm, và có thể tải file MP3 tùy chỉnh lời tự động căn theo độ dài nhạc.
