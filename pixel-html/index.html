@@ -493,6 +493,13 @@
 
   <!-- Thanh công cụ retro phía trên -->
   <div class="retro-toolbar">
+    <select id="song-select" class="tool-btn" title="Chọn bài hát">
+      <option value="0">🎶 Gói Con Tim Làm Quà</option>
+      <option value="1">🎶 Đêm Nay Một Mình</option>
+      <option value="2">🎶 Tình Yêu Cũ</option>
+      <option value="3">🎶 Yêu Anh Quá Nhiều</option>
+      <option value="4">🎶 Nửa Còn Lại</option>
+    </select>
     <button class="tool-btn active" id="btn-play">
       <span id="play-icon">⏸</span> <span id="play-text">Tạm dừng</span>
     </button>
@@ -639,9 +646,9 @@
     <!-- PHẦN TERMINAL LYRICS -->
     <div class="terminal-section">
       <!-- Tiêu đề & Tác giả -->
-      <div class="song-title">Gói Con Tim Làm Quà</div>
+      <div class="song-title" id="song-title">Gói Con Tim Làm Quà</div>
       <div class="song-artist">
-        Nguyễn Hùng, Mounter <span class="mode-tag">• karaoke mode</span>
+        <span id="song-artist">Nguyễn Hùng, Mounter</span> <span class="mode-tag">• karaoke mode</span>
       </div>
 
       <!-- 4 Dòng Lời Bài Hát -->
@@ -695,65 +702,216 @@
     // Hệ số co giãn lời theo độ dài nhạc thực tế (1 = mặc định)
     let LYRIC_SCALE = 1;
 
-    const lyricsData = [
+    /* ==========================================================
+       2. THƯ VIỆN BÀI HÁT (MỖI BÀI 4 DÒNG LỜI ~16s)
+       Cấu trúc mỗi dòng giữ nguyên: lineIndex, startTime, endTime, action, words[]
+       */
+    const SONGS = [
+      /* ---- Bài 1: Gói Con Tim Làm Quà ---- */
       {
-        lineIndex: 1,
-        startTime: 0.6,
-        endTime: 4.2,
-        action: "idle",
-        words: [
-          { text: "Gom",     time: 0.6, note: "G4", dur: 0.35 },
-          { text: "chân",   time: 1.2, note: "A4", dur: 0.35 },
-          { text: "thành",  time: 1.9, note: "B4", dur: 0.40 },
-          { text: "đôi",    time: 2.6, note: "A4", dur: 0.35 },
-          { text: "mươi",   time: 3.2, note: "G4", dur: 0.55 }
+        title: "Gói Con Tim Làm Quà",
+        artist: "Nguyễn Hùng, Mounter",
+        lines: [
+          { lineIndex: 1, startTime: 0.6, endTime: 4.2, action: "idle", words: [
+            { text: "Gom",     time: 0.6, note: "G4", dur: 0.35 },
+            { text: "chân",   time: 1.2, note: "A4", dur: 0.35 },
+            { text: "thành",  time: 1.9, note: "B4", dur: 0.40 },
+            { text: "đôi",    time: 2.6, note: "A4", dur: 0.35 },
+            { text: "mươi",   time: 3.2, note: "G4", dur: 0.55 }
+          ] },
+          { lineIndex: 2, startTime: 4.4, endTime: 8.2, action: "approach", words: [
+            { text: "Để",     time: 4.4, note: "E4", dur: 0.32 },
+            { text: "đổi",    time: 4.9, note: "G4", dur: 0.35 },
+            { text: "lấy",    time: 5.5, note: "A4", dur: 0.35 },
+            { text: "đôi",    time: 6.1, note: "B4", dur: 0.35 },
+            { text: "môi",    time: 6.6, note: "C5", dur: 0.35 },
+            { text: "em",     time: 7.1, note: "B4", dur: 0.35 },
+            { text: "cười",   time: 7.6, note: "A4", dur: 0.55 }
+          ] },
+          { lineIndex: 3, startTime: 8.4, endTime: 12.0, action: "give-flower", words: [
+            { text: "Chỉ",    time: 8.4,  note: "G4", dur: 0.40 },
+            { text: "cần",    time: 9.1,  note: "C5", dur: 0.45 },
+            { text: "em",     time: 9.8,  note: "B4", dur: 0.35 },
+            { text: "cho",    time: 10.4, note: "A4", dur: 0.35 },
+            { text: "nhành",  time: 11.0, note: "G4", dur: 0.35 },
+            { text: "hoa",    time: 11.5, note: "E4", dur: 0.55 }
+          ] },
+          { lineIndex: 4, startTime: 12.2, endTime: 15.8, action: "give-flower", words: [
+            { text: "Anh",    time: 12.2, note: "D4", dur: 0.32 },
+            { text: "gom",    time: 12.7, note: "E4", dur: 0.32 },
+            { text: "hết",    time: 13.2, note: "G4", dur: 0.35 },
+            { text: "bình",   time: 13.8, note: "A4", dur: 0.35 },
+            { text: "yên",    time: 14.3, note: "G4", dur: 0.35 },
+            { text: "trao",   time: 14.8, note: "D4", dur: 0.40 },
+            { text: "tặng",   time: 15.3, note: "C4", dur: 0.60 }
+          ] }
         ]
       },
+      /* ---- Bài 2: Đêm Nay Một Mình (thương nhớ đêm khuya) ---- */
       {
-        lineIndex: 2,
-        startTime: 4.4,
-        endTime: 8.2,
-        action: "approach", // Hai nhân vật bước lại gần
-        words: [
-          { text: "Để",     time: 4.4, note: "E4", dur: 0.32 },
-          { text: "đổi",    time: 4.9, note: "G4", dur: 0.35 },
-          { text: "lấy",    time: 5.5, note: "A4", dur: 0.35 },
-          { text: "đôi",    time: 6.1, note: "B4", dur: 0.35 },
-          { text: "môi",    time: 6.6, note: "C5", dur: 0.35 },
-          { text: "em",     time: 7.1, note: "B4", dur: 0.35 },
-          { text: "cười",   time: 7.6, note: "A4", dur: 0.55 }
+        title: "Đêm Nay Một Mình",
+        artist: "Original • Lo-Fi Ballad",
+        lines: [
+          { lineIndex: 1, startTime: 0.6, endTime: 4.2, action: "idle", words: [
+            { text: "Đêm",    time: 0.6, note: "G4", dur: 0.35 },
+            { text: "nay",    time: 1.2, note: "E4", dur: 0.35 },
+            { text: "trời",   time: 1.9, note: "C4", dur: 0.40 },
+            { text: "lạnh",   time: 2.6, note: "A4", dur: 0.35 },
+            { text: "rồi",    time: 3.2, note: "G4", dur: 0.55 }
+          ] },
+          { lineIndex: 2, startTime: 4.4, endTime: 8.2, action: "approach", words: [
+            { text: "Anh",    time: 4.4, note: "E4", dur: 0.32 },
+            { text: "ngồi",   time: 4.9, note: "F4", dur: 0.35 },
+            { text: "một",    time: 5.5, note: "G4", dur: 0.35 },
+            { text: "mình",   time: 6.1, note: "A4", dur: 0.35 },
+            { text: "đâu",    time: 6.6, note: "B4", dur: 0.35 },
+            { text: "chẳng",  time: 7.1, note: "A4", dur: 0.35 },
+            { text: "ai",     time: 7.6, note: "G4", dur: 0.55 }
+          ] },
+          { lineIndex: 3, startTime: 8.4, endTime: 12.0, action: "give-flower", words: [
+            { text: "Gọi",    time: 8.4,  note: "G4", dur: 0.40 },
+            { text: "tên",    time: 9.1,  note: "C5", dur: 0.45 },
+            { text: "ai",     time: 9.8,  note: "B4", dur: 0.35 },
+            { text: "đây",    time: 10.4, note: "A4", dur: 0.35 },
+            { text: "mình",   time: 11.0, note: "G4", dur: 0.35 },
+            { text: "thôi",   time: 11.5, note: "E4", dur: 0.55 }
+          ] },
+          { lineIndex: 4, startTime: 12.2, endTime: 15.8, action: "give-flower", words: [
+            { text: "Chỉ",    time: 12.2, note: "D4", dur: 0.32 },
+            { text: "có",     time: 12.7, note: "E4", dur: 0.32 },
+            { text: "trăng",  time: 13.2, note: "G4", dur: 0.35 },
+            { text: "với",    time: 13.8, note: "A4", dur: 0.35 },
+            { text: "tim",    time: 14.3, note: "G4", dur: 0.35 },
+            { text: "mình",   time: 14.8, note: "D4", dur: 0.40 },
+            { text: "đây",    time: 15.3, note: "C4", dur: 0.60 }
+          ] }
         ]
       },
+      /* ---- Bài 3: Tình Yêu Cũ (nhớ một tình xưa) ---- */
       {
-        lineIndex: 3,
-        startTime: 8.4,
-        endTime: 12.0,
-        action: "give-flower", // Trao hoa + tim bay + má hồng + mắt tim
-        words: [
-          { text: "Chỉ",    time: 8.4,  note: "G4", dur: 0.40 },
-          { text: "cần",    time: 9.1,  note: "C5", dur: 0.45 },
-          { text: "em",     time: 9.8,  note: "B4", dur: 0.35 },
-          { text: "cho",    time: 10.4, note: "A4", dur: 0.35 },
-          { text: "nhành",  time: 11.0, note: "G4", dur: 0.35 },
-          { text: "hoa",    time: 11.5, note: "E4", dur: 0.55 }
+        title: "Tình Yêu Cũ",
+        artist: "Original • Lo-Fi Ballad",
+        lines: [
+          { lineIndex: 1, startTime: 0.6, endTime: 4.2, action: "idle", words: [
+            { text: "Ngày",   time: 0.6, note: "G4", dur: 0.35 },
+            { text: "xưa",    time: 1.2, note: "E4", dur: 0.35 },
+            { text: "ta",     time: 1.9, note: "C4", dur: 0.40 },
+            { text: "trọn",   time: 2.6, note: "A4", dur: 0.35 },
+            { text: "vòng",   time: 3.2, note: "G4", dur: 0.55 }
+          ] },
+          { lineIndex: 2, startTime: 4.4, endTime: 8.2, action: "approach", words: [
+            { text: "Giờ",    time: 4.4, note: "E4", dur: 0.32 },
+            { text: "đây",    time: 4.9, note: "F4", dur: 0.35 },
+            { text: "mình",   time: 5.5, note: "G4", dur: 0.35 },
+            { text: "chia",   time: 6.1, note: "A4", dur: 0.35 },
+            { text: "đôi",    time: 6.6, note: "B4", dur: 0.35 },
+            { text: "nơi",    time: 7.1, note: "A4", dur: 0.35 },
+            { text: "này",    time: 7.6, note: "G4", dur: 0.55 }
+          ] },
+          { lineIndex: 3, startTime: 8.4, endTime: 12.0, action: "give-flower", words: [
+            { text: "Còn",    time: 8.4,  note: "G4", dur: 0.40 },
+            { text: "đây",    time: 9.1,  note: "C5", dur: 0.45 },
+            { text: "nhớ",    time: 9.8,  note: "B4", dur: 0.35 },
+            { text: "chăng",  time: 10.4, note: "A4", dur: 0.35 },
+            { text: "một",    time: 11.0, note: "G4", dur: 0.35 },
+            { text: "thoáng", time: 11.5, note: "E4", dur: 0.55 }
+          ] },
+          { lineIndex: 4, startTime: 12.2, endTime: 15.8, action: "give-flower", words: [
+            { text: "Gửi",    time: 12.2, note: "D4", dur: 0.32 },
+            { text: "về",     time: 12.7, note: "E4", dur: 0.32 },
+            { text: "ai",     time: 13.2, note: "G4", dur: 0.35 },
+            { text: "đây",    time: 13.8, note: "A4", dur: 0.35 },
+            { text: "tình",   time: 14.3, note: "G4", dur: 0.35 },
+            { text: "cũ",     time: 14.8, note: "D4", dur: 0.40 },
+            { text: "này",    time: 15.3, note: "C4", dur: 0.60 }
+          ] }
         ]
       },
+      /* ---- Bài 4: Yêu Anh Nhiều Quá (tình yêu ngọt ngào) ---- */
       {
-        lineIndex: 4,
-        startTime: 12.2,
-        endTime: 15.8,
-        action: "give-flower",
-        words: [
-          { text: "Anh",    time: 12.2, note: "D4", dur: 0.32 },
-          { text: "gom",    time: 12.7, note: "E4", dur: 0.32 },
-          { text: "hết",    time: 13.2, note: "G4", dur: 0.35 },
-          { text: "bình",   time: 13.8, note: "A4", dur: 0.35 },
-          { text: "yên",    time: 14.3, note: "G4", dur: 0.35 },
-          { text: "trao",   time: 14.8, note: "D4", dur: 0.40 },
-          { text: "tặng",   time: 15.3, note: "C4", dur: 0.60 }
+        title: "Yêu Anh Nhiều Quá",
+        artist: "Original • Upbeat Love",
+        lines: [
+          { lineIndex: 1, startTime: 0.6, endTime: 4.2, action: "idle", words: [
+            { text: "Anh",    time: 0.6, note: "G4", dur: 0.35 },
+            { text: "ơi",     time: 1.2, note: "E4", dur: 0.35 },
+            { text: "em",     time: 1.9, note: "C4", dur: 0.40 },
+            { text: "rất",    time: 2.6, note: "A4", dur: 0.35 },
+            { text: "yêu",    time: 3.2, note: "G4", dur: 0.55 }
+          ] },
+          { lineIndex: 2, startTime: 4.4, endTime: 8.2, action: "approach", words: [
+            { text: "Mỗi",    time: 4.4, note: "E4", dur: 0.32 },
+            { text: "ngày",   time: 4.9, note: "F4", dur: 0.35 },
+            { text: "đến",    time: 5.5, note: "G4", dur: 0.35 },
+            { text: "là",     time: 6.1, note: "A4", dur: 0.35 },
+            { text: "một",    time: 6.6, note: "B4", dur: 0.35 },
+            { text: "mùa",    time: 7.1, note: "A4", dur: 0.35 },
+            { text: "xuân",   time: 7.6, note: "G4", dur: 0.55 }
+          ] },
+          { lineIndex: 3, startTime: 8.4, endTime: 12.0, action: "give-flower", words: [
+            { text: "Chỉ",    time: 8.4,  note: "G4", dur: 0.40 },
+            { text: "cần",    time: 9.1,  note: "C5", dur: 0.45 },
+            { text: "em",     time: 9.8,  note: "B4", dur: 0.35 },
+            { text: "có",     time: 10.4, note: "A4", dur: 0.35 },
+            { text: "anh",    time: 11.0, note: "G4", dur: 0.35 },
+            { text: "thôi",   time: 11.5, note: "E4", dur: 0.55 }
+          ] },
+          { lineIndex: 4, startTime: 12.2, endTime: 15.8, action: "give-flower", words: [
+            { text: "Xa",     time: 12.2, note: "D4", dur: 0.32 },
+            { text: "anh",    time: 12.7, note: "E4", dur: 0.32 },
+            { text: "chẳng",  time: 13.2, note: "G4", dur: 0.35 },
+            { text: "còn",    time: 13.8, note: "A4", dur: 0.35 },
+            { text: "màu",    time: 14.3, note: "G4", dur: 0.35 },
+            { text: "nắng",   time: 14.8, note: "D4", dur: 0.40 },
+            { text: "ưa",     time: 15.3, note: "C4", dur: 0.60 }
+          ] }
+        ]
+      },
+      /* ---- Bài 5: Nửa Còn Lại (hi vọng bên nhau) ---- */
+      {
+        title: "Nửa Còn Lại",
+        artist: "Original • Emotional Pop",
+        lines: [
+          { lineIndex: 1, startTime: 0.6, endTime: 4.2, action: "idle", words: [
+            { text: "Còn",    time: 0.6, note: "G4", dur: 0.35 },
+            { text: "không",  time: 1.2, note: "E4", dur: 0.35 },
+            { text: "ta",     time: 1.9, note: "C4", dur: 0.40 },
+            { text: "đây",    time: 2.6, note: "A4", dur: 0.35 },
+            { text: "nơi",    time: 3.2, note: "G4", dur: 0.55 }
+          ] },
+          { lineIndex: 2, startTime: 4.4, endTime: 8.2, action: "approach", words: [
+            { text: "Hãy",    time: 4.4, note: "E4", dur: 0.32 },
+            { text: "thử",    time: 4.9, note: "F4", dur: 0.35 },
+            { text: "mình",   time: 5.5, note: "G4", dur: 0.35 },
+            { text: "trao",   time: 6.1, note: "A4", dur: 0.35 },
+            { text: "nhiều",  time: 6.6, note: "B4", dur: 0.35 },
+            { text: "hơn",    time: 7.1, note: "A4", dur: 0.35 },
+            { text: "nữa",    time: 7.6, note: "G4", dur: 0.55 }
+          ] },
+          { lineIndex: 3, startTime: 8.4, endTime: 12.0, action: "give-flower", words: [
+            { text: "Tình",   time: 8.4,  note: "G4", dur: 0.40 },
+            { text: "yêu",    time: 9.1,  note: "C5", dur: 0.45 },
+            { text: "này",    time: 9.8,  note: "B4", dur: 0.35 },
+            { text: "chẳng",  time: 10.4, note: "A4", dur: 0.35 },
+            { text: "xa",     time: 11.0, note: "G4", dur: 0.35 },
+            { text: "lâu",    time: 11.5, note: "E4", dur: 0.55 }
+          ] },
+          { lineIndex: 4, startTime: 12.2, endTime: 15.8, action: "give-flower", words: [
+            { text: "Mình",   time: 12.2, note: "D4", dur: 0.32 },
+            { text: "mình",   time: 12.7, note: "E4", dur: 0.32 },
+            { text: "với",    time: 13.2, note: "G4", dur: 0.35 },
+            { text: "nhau",   time: 13.8, note: "A4", dur: 0.35 },
+            { text: "mãi",    time: 14.3, note: "G4", dur: 0.35 },
+            { text: "hai",    time: 14.8, note: "D4", dur: 0.40 },
+            { text: "người",  time: 15.3, note: "C4", dur: 0.60 }
+          ] }
         ]
       }
     ];
+
+    // Bài hát đang được chọn (mặc định bài 1)
+    let currentSongIndex = 0;
+    let lyricsData = SONGS[currentSongIndex].lines;
 
     /* ==========================================================
        2b. TỰ ĐỘNG CO GIÃN LỜI THEO ĐỘ DÀI NHẠC THỰC TẾ
@@ -1028,6 +1186,38 @@
        5. TẠO DOM LYRICS THEO CHUẨN ẢNH MẪU
        ========================================================== */
     const lyricsContainer = document.getElementById("lyrics-lines");
+    const songTitleEl = document.getElementById("song-title");
+    const songArtistEl = document.getElementById("song-artist");
+    const songSelectEl = document.getElementById("song-select");
+
+    // Chuyển bài hát (reset lại lời, mốc thời gian và hoạt hình về đầu bài)
+    function selectSong(index) {
+      if (index < 0 || index >= SONGS.length) return;
+      currentSongIndex = index;
+      lyricsData = SONGS[currentSongIndex].lines;
+
+      // Reset lại mốc thời gian gốc (undo co giãn MP3 trước đó)
+      LYRIC_SCALE = 1;
+      SONG_DURATION = BASE_DURATION;
+
+      // Cập nhật tiêu đề & tác giả động
+      songTitleEl.textContent = SONGS[currentSongIndex].title;
+      songArtistEl.textContent = SONGS[currentSongIndex].artist;
+
+      // Reset DOM lời & trạng thái phát
+      renderLyricsDOM();
+      currentTime = 0;
+      playedNotesMap = {};
+      lastBeatSecond = -1;
+      flowerChimeTriggered = false;
+      syncKaraoke(0);
+      showToast(`🎵 ${SONGS[currentSongIndex].title}`);
+    }
+
+    // Sự kiện chọn bài từ thanh công cụ
+    songSelectEl.addEventListener("change", (e) => {
+      selectSong(parseInt(e.target.value, 10));
+    });
 
     function renderLyricsDOM() {
       lyricsContainer.innerHTML = "";
