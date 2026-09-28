@@ -861,6 +861,84 @@ Firewall Rule: "Allow_HTTPS_to_Server"
 | **Port Address Translation** | **PAT / Overload** | Maps multiple private IPs to a single public IP using unique source ports. | Automatic dynamic port mapping | Automatic dynamic port mapping |
 ---
 
+#### 1.6. MAC/IP Anomaly: Device "Kicking" Between Two IPs (Proxy ARP & Stale ARP Cache)
+
+##### Use Case
+Diagnosing and resolving a Layer 2/Layer 3 inconsistency where a single MAC address is observed behind two different IP addresses across switches, causing `traceroute` to jump to an unexpected hop.
+
+##### Problem / Scenario & Solution
+**Problem:** A single MAC address `0050.5680.13d7` was observed behind two different IPs on two different core switches:
+- On `SW-CORE-MTT-HS`, IP `192.168.1.223` mapped to MAC `0050.5680.13d7`.
+- On `Core-SW-HNAAu`, IP `192.168.1.123` mapped to the **same** MAC `0050.5680.13d7`, while `192.168.1.223` there mapped to a **different** MAC `0050.5680.ebc9`.
+- Running `traceroute 192.168.1.223` from `SW-CORE-MTT-HS` unexpectedly jumped to hop `.123` instead of `.223`.
+
+**Solution:** The root cause was traced to the following behavior. When `SW-CORE-MTT-HS` sends a probe toward MAC `0050.5680.13d7`, the device actually owning that MAC has `192.168.1.123` configured on its network card (as seen by `Core-SW-HNAAu`). Upon receiving an ICMP packet with TTL=1, that device replies with an ICMP *Time Exceeded* using its **real source IP `192.168.1.123`**, which is why traceroute reports hop 1 as `.123`.
+
+##### Scenario Flow Diagram
+The diagram below models the two-switch view of the same physical device and how Proxy ARP / stale ARP cache produces the misleading traceroute hop:
+
+```mermaid
+graph TD
+    classDef switch fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef vm fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px;
+    classDef ip fill:#fff9c4,stroke:#fbc02d,stroke-width:1px;
+    classDef action fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px;
+
+    %% The two core switches observing the same device differently
+    SW_MTT["SW-CORE-MTT-HS<br/>(ARP cache: .223 → 0050.5680.13d7)"]:::switch
+    SW_HNAAu["Core-SW-HNAAu<br/>(ARP cache: .123 → 0050.5680.13d7)<br/>(.223 → 0050.5680.ebc9)"]:::switch
+
+    %% The single physical VM behind both MAC/IP views
+    VM["VM Router/Firewall (VMware)<br/>Real MAC: 0050.5680.13d7<br/>Configured IP: 192.168.1.123<br/>Proxy ARP: ENABLED"]:::vm
+
+    %% IP / ARP interactions
+    ARP1["SW-CORE-MTT-HS sends ARP request for 192.168.1.223"]:::action
+    Proxy["VM answers with Proxy ARP:<br/>returns its own MAC 0050.5680.13d7"]:::action
+    Probe["SW-CORE-MTT-HS sends traceroute probe (ICMP TTL=1) to MAC 0050.5680.13d7"]:::action
+    TimeEx["VM replies ICMP Time Exceeded<br/>from real source IP 192.168.1.123"]:::action
+
+    %% Connections
+    SW_MTT -->|Stale/Proxy ARP entry| VM
+    SW_HNAAu -->|Real ARP entry| VM
+    SW_MTT -->|1| ARP1
+    ARP1 -->|2| Proxy
+    Proxy -->|MAC 0050.5680.13d7 cached| SW_MTT
+    SW_MTT -->|3| Probe
+    Probe -->|4 ICMP TTL=1| VM
+    VM -->|5 ICMP Time Exceeded (Src=.123)| TimeEx
+    TimeEx -. "traceroute hop 1 shows .123" .-> SW_MTT
+
+    style VM fill:#f3e5f5,stroke:#8e24aa,stroke-width:2px;
+```
+
+##### Possible Real-World Causes
+1. **Proxy ARP on the `.123` device:** The device at `192.168.1.123` (typically a virtualized Router/Firewall on VMware) has **Proxy ARP** enabled. When `SW-CORE-MTT-HS` sends an ARP request for `.223`, the `.123` device answers with its own MAC `0050.5680.13d7`.
+2. **Stale ARP cache on `SW-CORE-MTT-HS`:** The ARP cache retained an old entry (`Age = 176 min`) and had not yet refreshed to the new MAC `0050.5680.ebc9`.
+3. **IP conflict or Alias IP:** The device with MAC `0050.5680.13d7` has multiple secondary/virtual IPs configured, including both `.123` and `.223`.
+
+##### Resolution & Verification Steps
+**Step 1: Clear the ARP cache on `SW-CORE-MTT-HS` to relearn**
+```text
+clear ip arp 192.168.1.223
+clear ip arp 192.168.1.123
+```
+
+**Step 2: Ping from `SW-CORE-MTT-HS` and re-check the MAC**
+```text
+ping 192.168.1.223
+show ip arp 192.168.1.223
+```
+
+##### Technical Details
+| Symptom | Observed Behavior | Likely Root Cause |
+| :--- | :--- | :--- |
+| Same MAC behind two IPs | `0050.5680.13d7` seen for both `.223` (on MTT-HS) and `.123` (on HNAAu) | Proxy ARP or Alias/Secondary IP assignment |
+| Traceroute jumps to `.123` | ICMP Time Exceeded sourced from `.123` | Device replies with its real configured source IP |
+| Stale MAC entry | ARP `Age = 176 min` not refreshed | Stale ARP cache; needs manual clear |
+| IP conflict | One MAC serving multiple IPs | Secondary/Virtual IP or genuine IP conflict |
+
+---
+
 ### 2. System & Virtualization Infrastructure
 
 #### 2.1. Enterprise vSphere Distributed Switch (vDS) & vSAN Clustered Storage
