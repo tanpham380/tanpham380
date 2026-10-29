@@ -1,0 +1,153 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/rendercv/rendercv/refs/tags/v2.8/schema.json
+# Build: .agents/skills/cv-builder/scripts/build-cv.sh
+# Keep this file structurally identical to PhamThanhTan-ENG.yaml (same sections, order, dates).
+cv:
+  name: Phạm Thanh Tân
+  headline: DevOps & Virtualization Engineer
+  location: Thủ Đức, Hồ Chí Minh
+  photo:
+  email: Phamthanhtanlop92@gmail.com
+  phone: "+84 937 884 232"
+  social_networks:
+    - network: GitHub
+      username: tanpham380
+    - network: LinkedIn
+      username: phạm-thanh-tân-b355a3254
+  sections:
+    Tóm tắt chuyên môn:
+      - Kỹ sư DevOps & Virtualization với kinh nghiệm triển khai và vận hành hạ tầng on-premise và container. Tập trung vào VMware (vCenter, ESXi, vSAN, Horizon), Docker, Kubernetes và tự động hóa hệ thống. Kết hợp tư duy ảo hóa truyền thống với thực hành DevOps/Cloud-native nhằm tối ưu độ ổn định, hiệu năng và khả năng mở rộng cho hạ tầng doanh nghiệp.
+    Năng lực cốt lõi:
+      - label: Ảo hóa & Hạ tầng
+        details: VMware vSphere (ESXi, vCenter), vSAN, VMware Horizon (VDI), Dell PowerEdge, HP ProLiant
+      - label: Container & DevOps
+        details: Docker, Kubernetes, Portainer, Traefik, CI/CD, tự động hóa
+      - label: Mạng & Bảo mật
+        details: Cisco & HP switching, VLAN/L2/L3, MPLS, HAProxy, Keepalived, pfSense, OPNsense, FortiGate, Sophos
+      - label: Hệ điều hành & Scripting
+        details: Linux (Ubuntu, Debian), Windows Server, Python, Bash, PowerShell
+      - label: Hạ tầng AI
+        details: Phục vụ suy luận LLM (Aphrodite-engine, vLLM, SGLang), API tương thích OpenAI, GPUStack, CUDA 12.x và tối ưu GPU đời cũ, FastAPI
+    Kinh nghiệm làm việc:
+      - company: Hướng Nghiệp Á Âu
+        position: Nhân viên vận hành hệ thống
+        start_date: 2022-12
+        end_date: present
+        location: Hồ Chí Minh
+        highlights:
+          - Quản lý và vận hành hệ thống ảo hóa on-premise trên VMware vSphere 7.0, gồm cụm 4+ ESXi host và các host độc lập với hơn 25 máy ảo.
+          - Thiết kế và triển khai nền tảng container hóa bằng Docker & Docker Compose, tự động hóa triển khai và quản lý vòng đời ứng dụng qua Portainer và Traefik, giảm đáng kể thời gian cấu hình thủ công.
+          - Quản trị hệ thống lưu trữ NAS, triển khai sao lưu và phục hồi theo chiến lược 3-2-1 (local, cloud, off-site) để đảm bảo toàn vẹn dữ liệu.
+          - Triển khai và quản lý VMware Horizon (VDI) cùng vGPU phục vụ các máy chủ AI chuyên dụng (vLLM, SGLang).
+          - Cấu hình và tối ưu vSAN cùng hạ tầng mạng ảo (VMware Distributed Switch) nhằm đảm bảo hiệu năng và tính sẵn sàng cao.
+          - Đảm bảo vận hành ổn định cho ứng dụng .NET trên môi trường đa hệ điều hành (Windows Server, Ubuntu, Debian).
+          - "Công nghệ sử dụng: VMware vSphere 7.0 (ESXi, vCenter), vSAN, Horizon, Docker, Portainer, Traefik, NAS, Dell PowerEdge, HP ProLiant."
+      - company: Hướng Nghiệp Á Âu
+        position: Thực tập sinh kỹ sư mạng
+        start_date: 2022-08
+        end_date: 2022-12
+        location: Hồ Chí Minh
+        highlights:
+          - Nghiên cứu và đề xuất giải pháp cộng tác tài liệu (OwnCloud/OnlyOffice) và SharePoint 2013 on-premise.
+          - Tự nghiên cứu và triển khai tường lửa mã nguồn mở (pfSense, OPNsense) với High Availability, anti-virus proxy (Squid + ClamAV) và DDNS.
+          - Cấu hình switch Cisco & HP, thiết lập VLAN và định tuyến cho các chi nhánh qua đường truyền MPLS, đảm bảo phân vùng mạng an toàn.
+      - company: Đại học FPT
+        position: IT Helpdesk
+        start_date: 2020-03
+        end_date: 2022-07
+        location: Hồ Chí Minh
+        highlights:
+          - Cung cấp hỗ trợ kỹ thuật (Tier 1) và xử lý sự cố phần cứng, phần mềm, hệ thống mạng cho sinh viên và nhân viên.
+          - Phân tích sự cố thường gặp và xây dựng tài liệu quy trình xử lý chuẩn hóa, nâng cao hiệu quả hỗ trợ và giảm thời gian khắc phục.
+          - Bảo trì, cấu hình và sửa chữa thiết bị mạng, an ninh của trường (Cisco, Grandstream, Draytek, camera an ninh).
+    Dự án:
+      - name: Nghiên cứu SDN trên Kubernetes — Đồ án tốt nghiệp
+        position: Technical Leader
+        start_date: 2023-09
+        end_date: 2023-12
+        location: Đại học FPT
+        summary: Dẫn dắt nhóm 5 người thiết kế và xây dựng hạ tầng ảo hóa hoàn chỉnh trên EVE-NG, mô phỏng trung tâm dữ liệu thu nhỏ, sau đó triển khai cụm Kubernetes HA trên nền tảng đó.
+        highlights:
+          - Triển khai cụm Kubernetes High Availability 6 node (2 control plane, 4 worker) tích hợp HAProxy và Keepalived cho control plane.
+          - Phát triển script Python sinh NetworkPolicy template, chuẩn hóa và tăng tốc cấu hình bảo mật cho pod (deny-by-default, whitelist, cô lập giữa namespace).
+          - "Kết quả: 8.4/10 — được đánh giá cao về thiết kế ảo hóa và triển khai container thực tế."
+          - "[Tài liệu dự án](https://github.com/tanpham380/tanpham380/tree/main/SDN)"
+      - name: "[Triển khai LLM trên GPU Pascal (Aphrodite)](https://github.com/tanpham380/Aphrodite_LLM_Deploy_P40_GPU)"
+        date: 2025
+        highlights:
+          - Đóng gói Docker image của Aphrodite Engine đã vá lỗi trên CUDA 12.1 để chạy các LLM hiện đại trên card NVIDIA Pascal cũ (Tesla P40, 24 GB) — nền tảng mà stack upstream không còn hỗ trợ.
+          - Tự động hóa cấu hình model/runtime bằng Python configurator, kèm thiết lập half-precision và enforce-eager phù hợp card 24 GB, mở ra endpoint tương thích OpenAI.
+      - name: "[Kokoro Vietnamese TTS Server](https://github.com/tanpham380/tts-kokoro)"
+        date: 2025
+        highlights:
+          - Đóng gói model Kokoro-Vietnamese 82M thành dịch vụ FastAPI thay thế trực tiếp endpoint POST /v1/audio/speech của OpenAI, hỗ trợ streaming SSE và raw audio.
+          - Bổ sung 14 voicepack tiếng Việt hoán đổi lúc chạy trên một backbone dùng chung, scheduler có backpressure, health/metrics probe và manifest triển khai GPUStack.
+      - name: "[TapViet Studio](https://tanpham380.github.io/tapviet-studio/)"
+        date: 2025
+        highlights:
+          - Phát triển ứng dụng web thuần trình duyệt (JavaScript, HTML, CSS) tạo vở tập viết ô ly theo chuẩn chữ Bộ GD, xuất PDF sẵn sàng in ấn.
+    Học vấn:
+      - institution: Đại học FPT
+        area: An Toàn Thông Tin
+        degree: Cử nhân
+        start_date: 2019
+        end_date: 2023
+        location: Hồ Chí Minh
+        highlights:
+          - "GPA: 7.38/10"
+    Chứng chỉ:
+      - label: Đào tạo DevOps thực chiến doanh nghiệp (Kubernetes, Logging, Monitoring)
+        details: DevOpsEdu.vn — 03/2023
+      - label: Cisco Certified Network Associate (CCNA 200-301)
+        details: VN Pro — 03/2022
+      - label: CertNexus Certified Ethical Emerging Technologist
+        details: FPT Coursera — 03/2022
+      - label: CyberOps Associate
+        details: Cisco NetAcad — 11/2021
+      - label: CCNAv7 — Introduction to Networks
+        details: Cisco NetAcad — 07/2021
+    Hoạt động:
+      - company: CLB An Toàn Thông Tin FPT
+        position: Phó chủ nhiệm
+        start_date: 2020-09
+        end_date: 2023-12
+        highlights:
+          - Phối hợp ban chủ nhiệm điều phối, tổ chức các sự kiện và workshop chuyên đề.
+          - Tham gia xây dựng định hướng và kế hoạch hoạt động của câu lạc bộ.
+      - company: Đoàn Thanh Niên Cộng Sản Hồ Chí Minh
+        position: Tình nguyện viên
+        start_date: 2019-01
+        end_date: 2021-12
+        highlights:
+          - Tham gia và hỗ trợ các hoạt động tình nguyện cùng các đoàn viên.
+    Sở thích:
+      - Khám phá và tìm hiểu các thiết bị công nghệ
+      - Tham gia hoạt động cùng bạn bè, đồng nghiệp
+      - Du lịch
+
+design:
+  theme: engineeringresumes
+  page:
+    size: a4
+    top_margin: 0.6in
+    bottom_margin: 0.6in
+    left_margin: 0.6in
+    right_margin: 0.6in
+  header:
+    alignment: center
+    # Add a REAL portrait before enabling these (see cv-builder skill):
+    #   photo: photo.jpg          # 2:2 crop, >= 400x400 px, head-and-shoulders
+    #   alignment: left
+    #   photo_width: 2.8cm
+    #   photo_position: left
+  typography:
+    font_size:
+      body: 8.6pt
+      name: 20pt
+  links:
+    underline: false
+  sections:
+    space_between_regular_entries: 0.32cm
+
+settings:
+  render_command:
+    output_folder: rendercv_output

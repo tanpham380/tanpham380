@@ -1,0 +1,97 @@
+# Curated project pool — the SINGLE source for the `Projects:` block in both CV editions.
+#
+# Why this file exists:
+#   - `cv/PhamThanhTan-*.yaml` keeps STATIC facts (work experience, education, certs) written by hand.
+#   - `Projects:` is GENERATED from here, so a new project is added once, in both languages.
+#   - Nothing is auto-invented: text below is written by the author. GitHub + experiment/ are only
+#     used to VERIFY that what is claimed still exists and to discover what is missing.
+#
+# Commands:
+#   python3 .agents/skills/cv-builder/scripts/sync-projects.py              # check for drift
+#   python3 .agents/skills/cv-builder/scripts/sync-projects.py --apply      # write into both YAMLs
+#   python3 .agents/skills/cv-builder/scripts/sync-projects.py --scaffold <repo>   # add a stub entry
+#
+# Fields per project:
+#   id            stable slug, used in reports
+#   repo          GitHub repo name to verify (omit for non-GitHub projects)
+#   homepage      optional live URL
+#   date / start_date / end_date / position / location   RenderCV entry fields
+#   experiment    optional: `####` heading prefix in experiment/README.md it belongs to
+#   en / vi       { title, bullets[] }  — both languages required
+
+projects:
+  - id: sdn-capstone
+    repo: null
+    date: null
+    start_date: 2023-09
+    end_date: 2023-12
+    position: Technical Leader
+    location: FPT University
+    experiment: null
+    en:
+      title: SDN Research on Kubernetes — Capstone
+      summary: Led a 5-person team to design and build a complete virtualized data-center lab on EVE-NG, then deploy a highly available Kubernetes cluster on top of it.
+      bullets:
+        - "Deployed a 6-node High Availability Kubernetes cluster (2 control plane, 4 worker) with HAProxy and Keepalived for control-plane redundancy."
+        - "Developed Python scripts that generate NetworkPolicy templates, standardizing and accelerating pod security configuration (deny-by-default, whitelist, cross-namespace isolation)."
+        - "Result: 8.4/10 — recognized for virtualization design depth and practical container orchestration."
+        - "[Project documentation](https://github.com/tanpham380/tanpham380/tree/main/SDN)"
+    vi:
+      title: Nghiên cứu SDN trên Kubernetes — Đồ án tốt nghiệp
+      location: Đại học FPT
+      summary: Dẫn dắt nhóm 5 người thiết kế và xây dựng hạ tầng ảo hóa hoàn chỉnh trên EVE-NG, mô phỏng trung tâm dữ liệu thu nhỏ, sau đó triển khai cụm Kubernetes HA trên nền tảng đó.
+      bullets:
+        - "Triển khai cụm Kubernetes High Availability 6 node (2 control plane, 4 worker) tích hợp HAProxy và Keepalived cho control plane."
+        - "Phát triển script Python sinh NetworkPolicy template, chuẩn hóa và tăng tốc cấu hình bảo mật cho pod (deny-by-default, whitelist, cô lập giữa namespace)."
+        - "Kết quả: 8.4/10 — được đánh giá cao về thiết kế ảo hóa và triển khai container thực tế."
+        - "[Tài liệu dự án](https://github.com/tanpham380/tanpham380/tree/main/SDN)"
+
+  - id: aphrodite-p40
+    repo: Aphrodite_LLM_Deploy_P40_GPU
+    date: 2025
+    experiment: null
+    en:
+      title: Aphrodite LLM Deployment for Pascal GPUs
+      bullets:
+        - "Built a Docker image of a patched Aphrodite Engine on CUDA 12.1 to serve modern LLMs on legacy NVIDIA Pascal cards (Tesla P40, 24 GB), a platform the upstream stack no longer targets."
+        - "Automated model/runtime configuration with a Python configurator, plus half-precision and enforce-eager settings that fit a 24 GB card and expose an OpenAI-compatible endpoint."
+    vi:
+      title: Triển khai LLM trên GPU Pascal (Aphrodite)
+      bullets:
+        - "Đóng gói Docker image của Aphrodite Engine đã vá lỗi trên CUDA 12.1 để chạy các LLM hiện đại trên card NVIDIA Pascal cũ (Tesla P40, 24 GB) — nền tảng mà stack upstream không còn hỗ trợ."
+        - "Tự động hóa cấu hình model/runtime bằng Python configurator, kèm thiết lập half-precision và enforce-eager phù hợp card 24 GB, mở ra endpoint tương thích OpenAI."
+
+  - id: kokoro-tts
+    repo: tts-kokoro
+    date: 2025
+    experiment: null
+    en:
+      title: Kokoro Vietnamese TTS Server
+      bullets:
+        - "Packaged the Kokoro-Vietnamese 82M model into a FastAPI service that is a drop-in replacement for the OpenAI POST /v1/audio/speech endpoint, with SSE and raw-audio streaming."
+        - "Added 14 Vietnamese voicepacks with runtime swapping on a shared model backbone, a queue scheduler with backpressure, health/metrics probes, and GPUStack deployment manifests."
+    vi:
+      title: Kokoro Vietnamese TTS Server
+      bullets:
+        - "Đóng gói model Kokoro-Vietnamese 82M thành dịch vụ FastAPI thay thế trực tiếp endpoint POST /v1/audio/speech của OpenAI, hỗ trợ streaming SSE và raw audio."
+        - "Bổ sung 14 voicepack tiếng Việt hoán đổi lúc chạy trên một backbone dùng chung, scheduler có backpressure, health/metrics probe và manifest triển khai GPUStack."
+
+  - id: tapviet-studio
+    repo: tapviet-studio
+    homepage: https://tanpham380.github.io/tapviet-studio/
+    date: 2025
+    experiment: null
+    en:
+      title: TapViet Studio
+      bullets:
+        - "Shipped a browser-only Vietnamese handwriting-worksheet generator (JavaScript, HTML, CSS) that renders Ministry-of-Education standard glyph grids and exports print-ready PDF."
+    vi:
+      title: TapViet Studio
+      bullets:
+        - "Phát triển ứng dụng web thuần trình duyệt (JavaScript, HTML, CSS) tạo vở tập viết ô ly theo chuẩn chữ Bộ GD, xuất PDF sẵn sàng in ấn."
+
+# Repos that exist publicly but must never be surfaced on the CV (forks, scratch, mirrors).
+exclude_repos:
+  - QUAN-Transcribe
+  - capstone
+  - tanpham380

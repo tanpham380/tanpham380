@@ -1,0 +1,77 @@
+name: build-cv
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "cv/**"
+      - ".agents/skills/cv-builder/**"
+      - ".github/workflows/cv.yml"
+  pull_request:
+    paths:
+      - "cv/**"
+      - ".agents/skills/cv-builder/**"
+  schedule:
+    # Weekly drift report: new public repos, archived repos, broken project links.
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Projects block in sync
+        run: python3 .agents/skills/cv-builder/scripts/sync-projects.py --offline
+
+      - name: Render CV editions
+        run: bash .agents/skills/cv-builder/scripts/build-cv.sh
+
+      - name: Verify page count and PDF presence
+        run: |
+          set -euo pipefail
+          for f in cv/PhamThanhTan-ENG.pdf cv/PhamThanhTan-VIE.pdf; do
+            test -s "$f" || { echo "missing $f"; exit 1; }
+            pages=$(uv run --python 3.12 --quiet --with pypdf python - "$f" <<'PY'
+          import sys
+          from pypdf import PdfReader
+          print(len(PdfReader(sys.argv[1]).pages))
+          PY
+            )
+            echo "$f -> ${pages} page(s)"
+            if [ "$pages" -gt 2 ]; then
+              echo "::warning file=$f::$f is ${pages} pages (target <= 2)"
+            fi
+          done
+
+      - name: Consistency check
+        run: python3 .agents/skills/profile-sync/scripts/check-profile-sync.py
+
+      - name: Report GitHub / experiment drift (advisory)
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 .agents/skills/cv-builder/scripts/sync-projects.py || true
+
+      - name: Repo hygiene audit
+        run: python3 .agents/skills/repo-hygiene/scripts/repo-audit.py
+
+      - name: Upload generated CVs
+        uses: actions/upload-artifact@v4
+        with:
+          name: cv-pdfs
+          path: |
+            cv/PhamThanhTan-ENG.pdf
+            cv/PhamThanhTan-VIE.pdf
+          retention-days: 14

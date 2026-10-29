@@ -1,0 +1,153 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/rendercv/rendercv/refs/tags/v2.8/schema.json
+# Build: .agents/skills/cv-builder/scripts/build-cv.sh
+# Keep this file structurally identical to PhamThanhTan-VIE.yaml (same sections, order, dates).
+cv:
+  name: Pham Thanh Tan
+  headline: DevOps & Virtualization Engineer
+  location: Thu Duc, Ho Chi Minh City, Vietnam
+  photo:
+  email: Phamthanhtanlop92@gmail.com
+  phone: "+84 937 884 232"
+  social_networks:
+    - network: GitHub
+      username: tanpham380
+    - network: LinkedIn
+      username: phạm-thanh-tân-b355a3254
+  sections:
+    Professional Summary:
+      - DevOps & Virtualization Engineer with hands-on experience deploying and operating on-premise and containerized infrastructure. Specialized in VMware vSphere (vCenter, ESXi, vSAN, Horizon), Docker, Kubernetes, and system automation. Combines a traditional-virtualization mindset with cloud-native DevOps practice to improve stability, performance, and scalability of enterprise environments.
+    Core Competencies:
+      - label: Virtualization & Infrastructure
+        details: VMware vSphere (ESXi, vCenter), vSAN, VMware Horizon (VDI), Dell PowerEdge, HP ProLiant
+      - label: Containers & DevOps
+        details: Docker, Kubernetes, Portainer, Traefik, CI/CD fundamentals, automation
+      - label: Networking & Security
+        details: Cisco & HP switching, VLAN/L2/L3, MPLS, HAProxy, Keepalived, pfSense, OPNsense, FortiGate, Sophos
+      - label: Operating Systems & Scripting
+        details: Linux (Ubuntu, Debian), Windows Server, Python, Bash, PowerShell
+      - label: AI Infrastructure
+        details: LLM inference serving (Aphrodite-engine, vLLM, SGLang), OpenAI-compatible APIs, GPUStack, CUDA 12.x and legacy-GPU tuning, FastAPI
+    Work Experience:
+      - company: Huong Nghiep A Au
+        position: System Engineer
+        start_date: 2022-12
+        end_date: present
+        location: Ho Chi Minh City, Vietnam
+        highlights:
+          - Operate the on-premise virtualization platform on VMware vSphere 7.0 — a 4+ host ESXi cluster plus standalone hosts supporting more than 25 virtual machines.
+          - Engineered and deployed a container platform with Docker and Docker Compose, automating deployment and lifecycle management through Portainer and Traefik, cutting manual configuration time.
+          - Administered central NAS storage and implemented a 3-2-1 backup and recovery strategy (local, cloud, off-site) to protect data integrity.
+          - Deployed and administered VMware Horizon (VDI) with vGPU to serve dedicated AI workloads (vLLM, SGLang).
+          - Tuned vSAN storage and VMware Distributed Switch networking for performance and high availability.
+          - Kept .NET applications stable across a mixed Windows Server, Ubuntu, and Debian estate.
+          - "Technologies: VMware vSphere 7.0 (ESXi, vCenter), vSAN, Horizon, Docker, Portainer, Traefik, NAS, Dell PowerEdge, HP ProLiant."
+      - company: Huong Nghiep A Au
+        position: Network Engineer Intern
+        start_date: 2022-08
+        end_date: 2022-12
+        location: Ho Chi Minh City, Vietnam
+        highlights:
+          - Researched and proposed IT solutions for collaboration (OwnCloud/OnlyOffice) and an on-premise SharePoint 2013 deployment.
+          - Independently deployed open-source firewalls (pfSense, OPNsense) with High Availability, anti-virus proxy (Squid + ClamAV), and DDNS.
+          - Configured Cisco and HP switches — VLANs and routing for branch offices across an MPLS network — to enforce network segmentation.
+      - company: FPT University
+        position: IT Helpdesk
+        start_date: 2020-03
+        end_date: 2022-07
+        location: Ho Chi Minh City, Vietnam
+        highlights:
+          - Delivered Tier 1 support for hardware, software, and network incidents for students and staff.
+          - Analyzed recurring incidents and documented standardized troubleshooting procedures, improving support efficiency and reducing time to resolution.
+          - Maintained and repaired campus network and security equipment (Cisco, Grandstream, Draytek, CCTV).
+    Projects:
+      - name: SDN Research on Kubernetes — Capstone
+        position: Technical Leader
+        start_date: 2023-09
+        end_date: 2023-12
+        location: FPT University
+        summary: Led a 5-person team to design and build a complete virtualized data-center lab on EVE-NG, then deploy a highly available Kubernetes cluster on top of it.
+        highlights:
+          - Deployed a 6-node High Availability Kubernetes cluster (2 control plane, 4 worker) with HAProxy and Keepalived for control-plane redundancy.
+          - Developed Python scripts that generate NetworkPolicy templates, standardizing and accelerating pod security configuration (deny-by-default, whitelist, cross-namespace isolation).
+          - "Result: 8.4/10 — recognized for virtualization design depth and practical container orchestration."
+          - "[Project documentation](https://github.com/tanpham380/tanpham380/tree/main/SDN)"
+      - name: "[Aphrodite LLM Deployment for Pascal GPUs](https://github.com/tanpham380/Aphrodite_LLM_Deploy_P40_GPU)"
+        date: 2025
+        highlights:
+          - Built a Docker image of a patched Aphrodite Engine on CUDA 12.1 to serve modern LLMs on legacy NVIDIA Pascal cards (Tesla P40, 24 GB), a platform the upstream stack no longer targets.
+          - Automated model/runtime configuration with a Python configurator, plus half-precision and enforce-eager settings that fit a 24 GB card and expose an OpenAI-compatible endpoint.
+      - name: "[Kokoro Vietnamese TTS Server](https://github.com/tanpham380/tts-kokoro)"
+        date: 2025
+        highlights:
+          - Packaged the Kokoro-Vietnamese 82M model into a FastAPI service that is a drop-in replacement for the OpenAI POST /v1/audio/speech endpoint, with SSE and raw-audio streaming.
+          - Added 14 Vietnamese voicepacks with runtime swapping on a shared model backbone, a queue scheduler with backpressure, health/metrics probes, and GPUStack deployment manifests.
+      - name: "[TapViet Studio](https://tanpham380.github.io/tapviet-studio/)"
+        date: 2025
+        highlights:
+          - Shipped a browser-only Vietnamese handwriting-worksheet generator (JavaScript, HTML, CSS) that renders Ministry-of-Education standard glyph grids and exports print-ready PDF.
+    Education:
+      - institution: FPT University
+        area: Information Assurance
+        degree: Bachelor
+        start_date: 2019
+        end_date: 2023
+        location: Ho Chi Minh City, Vietnam
+        highlights:
+          - "GPA: 7.38/10"
+    Certifications:
+      - label: Enterprise DevOps Practices (Kubernetes, Logging, Monitoring)
+        details: DevOpsEdu.vn — 03/2023
+      - label: Cisco Certified Network Associate (CCNA 200-301)
+        details: VN Pro — 03/2022
+      - label: CertNexus Certified Ethical Emerging Technologist
+        details: FPT Coursera — 03/2022
+      - label: CyberOps Associate
+        details: Cisco NetAcad — 11/2021
+      - label: CCNAv7 — Introduction to Networks
+        details: Cisco NetAcad — 07/2021
+    Activities:
+      - company: FPT Information Assurance Club
+        position: Vice President
+        start_date: 2020-09
+        end_date: 2023-12
+        highlights:
+          - Coordinated technical workshops and events with the leadership team.
+          - Contributed to strategic planning for a knowledge-sharing community.
+      - company: Ho Chi Minh Communist Youth Union
+        position: Volunteer
+        start_date: 2019-01
+        end_date: 2021-12
+        highlights:
+          - Supported community volunteer activities with fellow union members.
+    Interests:
+      - Exploring new technologies and gadgets
+      - Collaborating on team activities and social events
+      - Traveling
+
+design:
+  theme: engineeringresumes
+  page:
+    size: a4
+    top_margin: 0.6in
+    bottom_margin: 0.6in
+    left_margin: 0.6in
+    right_margin: 0.6in
+  header:
+    alignment: center
+    # Add a REAL portrait before enabling these (see cv-builder skill):
+    #   photo: photo.jpg          # 2:2 crop, >= 400x400 px, head-and-shoulders
+    #   alignment: left
+    #   photo_width: 2.8cm
+    #   photo_position: left
+  typography:
+    font_size:
+      body: 8.6pt
+      name: 20pt
+  links:
+    underline: false
+  sections:
+    space_between_regular_entries: 0.32cm
+
+settings:
+  render_command:
+    output_folder: rendercv_output
