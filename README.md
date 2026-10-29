@@ -100,6 +100,16 @@
   <br />
   [🌐 Truy cập ứng dụng](https://tanpham380.github.io/tapviet-studio/) | [📦 Source code](https://github.com/tanpham380/tapviet-studio)
 
+- **Aphrodite LLM Deployment for Pascal GPUs**
+  Docker image of a patched **Aphrodite Engine** on CUDA 12.1 that serves modern LLMs on legacy NVIDIA Pascal cards (Tesla P40, 24 GB) — half-precision and `--enforce-eager` tuning, OpenAI-compatible endpoint, Python configurator.
+  <br />
+  [📦 Source code](https://github.com/tanpham380/Aphrodite_LLM_Deploy_P40_GPU)
+
+- **Kokoro Vietnamese TTS Server**
+  FastAPI service that is a drop-in replacement for the OpenAI `POST /v1/audio/speech` endpoint — 14 Vietnamese voicepacks swapped at runtime on a shared 82M backbone, SSE + raw audio streaming, queue scheduler with backpressure, health/metrics probes, GPUStack manifests.
+  <br />
+  [📦 Source code](https://github.com/tanpham380/tts-kokoro)
+
 - **More repositories**
   Explore additional labs and projects on [my GitHub repositories](https://github.com/tanpham380?tab=repositories).
 
