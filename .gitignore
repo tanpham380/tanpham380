@@ -1,1 +1,6 @@
 tapviet-studio/
+
+# build output
+rendercv_output/
+.DS_Store
+node_modules/
